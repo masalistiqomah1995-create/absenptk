@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <!DOCTYPE html>
+<html>
 <head>
   <base target="_top">
   <meta charset="utf-8">
@@ -489,4 +495,6 @@
     }
   </script>
 </body>
+</html>
+  </body>
 </html>
