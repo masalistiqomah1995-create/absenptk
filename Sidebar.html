@@ -1,0 +1,387 @@
+<!-- SIDEBAR -->
+
+<style>
+
+:root{
+    --primary:#2563EB;
+    --success:#22C55E;
+    --danger:#EF4444;
+    --sidebar:#0F172A;
+    --hover:#1E293B;
+}
+
+.sidebar{
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:260px;
+    height:100vh;
+
+    background:var(--sidebar);
+
+    color:white;
+
+    z-index:999;
+
+    overflow-y:auto;
+
+    transition:.3s;
+
+}
+
+.sidebar-header{
+
+    text-align:center;
+
+    padding:25px 15px;
+
+    border-bottom:1px solid rgba(255,255,255,.1);
+
+}
+
+.sidebar-header img{
+
+    width:80px;
+    height:80px;
+
+    object-fit:contain;
+
+    margin-bottom:10px;
+
+}
+
+.sidebar-header h5{
+
+    margin:0;
+    font-weight:700;
+
+}
+
+.sidebar-header small{
+
+    color:#CBD5E1;
+
+}
+
+.sidebar-menu{
+
+    padding:15px;
+
+}
+
+.sidebar-menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    color:#E2E8F0;
+
+    text-decoration:none;
+
+    padding:14px 18px;
+
+    border-radius:14px;
+
+    margin-bottom:8px;
+
+    transition:.3s;
+
+    font-weight:500;
+
+}
+
+.sidebar-menu a:hover{
+
+    background:var(--hover);
+
+    color:white;
+
+    transform:translateX(5px);
+
+}
+
+.sidebar-menu a.active{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+.sidebar-menu i{
+
+    width:20px;
+
+    text-align:center;
+
+}
+
+.sidebar-footer{
+
+    position:absolute;
+
+    bottom:20px;
+
+    width:100%;
+
+    padding:0 15px;
+
+}
+
+.btn-logout{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:var(--danger);
+
+    color:white;
+
+    padding:12px;
+
+    font-weight:600;
+
+}
+
+.btn-logout:hover{
+
+    opacity:.9;
+
+}
+
+.content-wrapper{
+
+    margin-left:260px;
+
+    transition:.3s;
+
+}
+
+.mobile-toggle{
+
+    display:none;
+
+    position:fixed;
+
+    top:15px;
+    left:15px;
+
+    z-index:1001;
+
+}
+
+@media(max-width:768px){
+
+    .sidebar{
+
+        left:-260px;
+
+    }
+
+    .sidebar.show{
+
+        left:0;
+
+    }
+
+    .content-wrapper{
+
+        margin-left:0;
+
+    }
+
+    .mobile-toggle{
+
+        display:block;
+
+    }
+
+}
+
+</style>
+
+<button
+class="btn btn-primary mobile-toggle"
+onclick="toggleSidebar()">
+
+<i class="fa fa-bars"></i>
+
+</button>
+
+<div class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+
+        <img
+        src="https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png">
+
+        <h5>
+            Absensi Guru
+        </h5>
+
+        <small>
+            Digital Attendance
+        </small>
+
+    </div>
+
+    <div class="sidebar-menu">
+
+        <a href="#home"
+           onclick="loadPage('Home')"
+           id="menuHome">
+
+            <i class="fa-solid fa-house"></i>
+
+            Home
+
+        </a>
+
+        <a href="#guru"
+           onclick="loadPage('Guru')"
+           id="menuGuru">
+
+            <i class="fa-solid fa-user-graduate"></i>
+
+            Data Guru
+
+        </a>
+
+        <a href="#absensi"
+           onclick="loadPage('Absensi')"
+           id="menuAbsensi">
+
+            <i class="fa-solid fa-clipboard-check"></i>
+
+            Absensi
+
+        </a>
+
+        <a href="#rekap"
+           onclick="loadPage('Rekap')"
+           id="menuRekap">
+
+            <i class="fa-solid fa-chart-column"></i>
+
+            Rekap Bulanan
+
+        </a>
+
+        <a href="#setting">
+
+            <i class="fa-solid fa-gear"></i>
+
+            Pengaturan
+
+        </a>
+
+    </div>
+
+    <div class="sidebar-footer">
+
+        <button
+        class="btn-logout"
+        onclick="logout()">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            Logout
+
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+function toggleSidebar(){
+
+    document
+    .getElementById("sidebar")
+    .classList
+    .toggle("show");
+
+}
+
+function setActiveMenu(menuId){
+
+    document
+    .querySelectorAll(".sidebar-menu a")
+    .forEach(el=>{
+
+        el.classList.remove("active");
+
+    });
+
+    document
+    .getElementById(menuId)
+    .classList
+    .add("active");
+
+}
+
+function loadPage(page){
+
+showLoading();
+
+google.script.run
+
+.withSuccessHandler(function(html){
+
+document
+.getElementById(
+"mainContent"
+)
+.innerHTML = html;
+
+hideLoading();
+
+})
+
+.getPage(page);
+
+}
+
+function logout(){
+
+    if(!confirm("Yakin ingin logout ?")){
+        return;
+    }
+
+    sessionStorage.clear();
+
+    location.reload();
+
+}
+
+window.onload=function(){
+
+    setActiveMenu("menuHome");
+
+}
+function logout(){
+
+return true;
+
+}
+function logout(){
+
+sessionStorage.clear();
+
+google.script.run
+.logout();
+
+location.reload();
+
+}
+</script>
