@@ -1,2766 +1,403 @@
-/*************************************************
- *
- * ABSENSI GURU DIGITAL
- * FINAL V3 CLEAN
- *
- * PART 1
- * CONFIG + DATABASE + AUTH + SESSION
- *
- *************************************************/
-
-
-/*************************************************
- * CONFIG
- *************************************************/
-
-const CONFIG = {
-
-  SPREADSHEET_ID:
-  "1mC6UT80cDxAAnutZyhxuc3eVpVAfytp97O_OP1Cpsis",
-
-  TIMEZONE:
-  "Asia/Jakarta",
-
-  ADMIN_USERNAME:
-  "admin",
-
-  ADMIN_PASSWORD:
-  "admin123",
-
-  WHATSAPP_API:
-  "https://api.fonnte.com/send",
-
-  WHATSAPP_TOKEN:
-  "",
-
-  EMAIL_ADMIN:
-  "admin@sekolah.sch.id"
-
-};
-
-
-/*************************************************
- * SESSION
- *************************************************/
-
-const SESSION_TIMEOUT =
-21600;
-
-
-/*************************************************
- * WEB APP
- *************************************************/
+// CONFIGURATION GLOBAL INTEGRATION
+var SPREADSHEET_ID = "1PGuWCE3ex1Yj7Rf5LsjDYz6kKGvJT-L8BsKXV0GF_ys";
+var DRIVE_FOLDER_ID = "1aWORr8uz4QVMbBm0eLjeubtvsHJfNDe5";
 
 function doGet() {
-
-  return HtmlService
-    .createTemplateFromFile(
-      "Index"
-    )
-    .evaluate()
-    .setTitle(
-      "Absensi Guru Digital"
-    )
-    .setXFrameOptionsMode(
-      HtmlService
-      .XFrameOptionsMode
-      .ALLOWALL
-    );
-
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle("Absensi GTK Madrasah Aliyah Al Istiqomah")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-
-function include(filename){
-
-  return HtmlService
-  .createHtmlOutputFromFile(
-  filename
-  )
-  .getContent();
-
-}
-
-
-/*************************************************
- * DATABASE
- *************************************************/
-
-function getSpreadsheet(){
-
-  return SpreadsheetApp.openById(
-    CONFIG.SPREADSHEET_ID
-  );
-
-}
-
-
-function getSheet(name){
-
-  return getSpreadsheet()
-  .getSheetByName(name);
-
-}
-
-
-/*************************************************
- * SETUP DATABASE
- *************************************************/
-
-function setupDatabase(){
-
-  const ss =
-  getSpreadsheet();
-
-  createGuruSheet(ss);
-
-  createAbsensiSheet(ss);
-
-  createRekapSheet(ss);
-
-  createKontakSheet(ss);
-
-  createAuditSheet(ss);
-
-  return true;
-
-}
-
-
-/*************************************************
- * SHEET GURU
- *************************************************/
-
-function createGuruSheet(ss){
-
-  let sheet =
-  ss.getSheetByName(
-  "Guru"
-  );
-
-  if(sheet) return;
-
-  sheet =
-  ss.insertSheet(
-  "Guru"
-  );
-
-  sheet.appendRow([
-
-    "ID Guru",
-
-    "Nama Guru",
-
-    "NIP",
-
-    "Jabatan",
-
-    "Username",
-
-    "Password"
-
-  ]);
-
-}
-
-
-/*************************************************
- * SHEET ABSENSI
- *************************************************/
-
-function createAbsensiSheet(ss){
-
-  let sheet =
-  ss.getSheetByName(
-  "Absensi"
-  );
-
-  if(sheet) return;
-
-  sheet =
-  ss.insertSheet(
-  "Absensi"
-  );
-
-  sheet.appendRow([
-
-    "ID",
-
-    "Tanggal",
-
-    "Nama Guru",
-
-    "Jam Masuk",
-
-    "Status Masuk",
-
-    "Jam Pulang",
-
-    "Status Pulang"
-
-  ]);
-
-}
-
-
-/*************************************************
- * SHEET REKAP
- *************************************************/
-
-function createRekapSheet(ss){
-
-  let sheet =
-  ss.getSheetByName(
-  "Rekap"
-  );
-
-  if(sheet) return;
-
-  sheet =
-  ss.insertSheet(
-  "Rekap"
-  );
-
-}
-
-
-/*************************************************
- * SHEET KONTAK
- *************************************************/
-
-function createKontakSheet(ss){
-
-  let sheet =
-  ss.getSheetByName(
-  "Kontak"
-  );
-
-  if(sheet) return;
-
-  sheet =
-  ss.insertSheet(
-  "Kontak"
-  );
-
-  sheet.appendRow([
-
-    "Nama Guru",
-
-    "Nomor WA",
-
-    "Email"
-
-  ]);
-
-}
-
-
-/*************************************************
- * SHEET AUDIT
- *************************************************/
-
-function createAuditSheet(ss){
-
-  let sheet =
-  ss.getSheetByName(
-  "AuditLog"
-  );
-
-  if(sheet) return;
-
-  sheet =
-  ss.insertSheet(
-  "AuditLog"
-  );
-
-  sheet.appendRow([
-
-    "Tanggal",
-
-    "Jam",
-
-    "User",
-
-    "Role",
-
-    "Aktivitas"
-
-  ]);
-
-}
-
-
-/*************************************************
- * UTILITIES
- *************************************************/
-
-function formatTanggal(date){
-
-  return Utilities.formatDate(
-
-    date,
-
-    CONFIG.TIMEZONE,
-
-    "dd/MM/yyyy"
-
-  );
-
-}
-
-
-function formatJam(date){
-
-  return Utilities.formatDate(
-
-    date,
-
-    CONFIG.TIMEZONE,
-
-    "HH:mm:ss"
-
-  );
-
-}
-
-
-function generateId(prefix){
-
-  return (
-
-    prefix +
-
-    "-" +
-
-    Utilities.formatDate(
-
-      new Date(),
-
-      CONFIG.TIMEZONE,
-
-      "yyyyMMddHHmmss"
-
-    )
-
-  );
-
-}
-
-
-/*************************************************
- * SESSION CACHE
- *************************************************/
-
-function createSession(user){
-
-  const token =
-  Utilities.getUuid();
-
-  CacheService
-  .getScriptCache()
-  .put(
-
-    token,
-
-    JSON.stringify(user),
-
-    SESSION_TIMEOUT
-
-  );
-
-  return token;
-
-}
-
-
-function getSession(token){
-
-  const data =
-  CacheService
-  .getScriptCache()
-  .get(token);
-
-  if(!data){
-
-    return null;
-
+// 1. FUNGSI LOGIN MULTI-USER (ANTI-STUCK)
+function prosesUserLogin(usernameOrNuptk, password) {
+  var inputUser = usernameOrNuptk ? usernameOrNuptk.toString().trim() : "";
+  var inputPass = password ? password.toString().trim() : "";
+  
+  if (inputUser === "" || inputPass === "") {
+    return { success: false, message: "Username dan Password tidak boleh kosong!" };
   }
 
-  return JSON.parse(data);
-
-}
-
-
-function destroySession(token){
-
-  CacheService
-  .getScriptCache()
-  .remove(token);
-
-}
-
-
-/*************************************************
- * AUDIT LOG
- *************************************************/
-
-function writeAuditLog(
-
-nama,
-
-role,
-
-aktivitas
-
-){
-
-  const sheet =
-  getSheet(
-  "AuditLog"
-  );
-
-  sheet.appendRow([
-
-    formatTanggal(
-    new Date()
-    ),
-
-    formatJam(
-    new Date()
-    ),
-
-    nama,
-
-    role,
-
-    aktivitas
-
-  ]);
-
-}
-
-
-/*************************************************
- * LOGIN
- *************************************************/
-
-function login(
-
-username,
-
-password
-
-){
-
-  try{
-
-    /*********
-     * ADMIN
-     *********/
-
-    if(
-
-      username ==
-      CONFIG.ADMIN_USERNAME
-
-      &&
-
-      password ==
-      CONFIG.ADMIN_PASSWORD
-
-    ){
-
-      const user = {
-
-        id:"ADMIN",
-
-        nama:"Administrator",
-
-        role:"admin"
-
-      };
-
-      const token =
-      createSession(user);
-
-      writeAuditLog(
-
-        user.nama,
-
-        user.role,
-
-        "LOGIN"
-
-      );
-
-      return {
-
-        success:true,
-
-        token:token,
-
-        user:user
-
-      };
-
-    }
-
-
-    /*********
-     * GURU
-     *********/
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-
-      let i=1;
-
-      i<data.length;
-
-      i++
-
-    ){
-
-      if(
-
-        data[i][4]
-        ==
-        username
-
-        &&
-
-        data[i][5]
-        ==
-        password
-
-      ){
-
-        const user = {
-
-          id:data[i][0],
-
-          nama:data[i][1],
-
-          role:"guru"
-
-        };
-
-        const token =
-        createSession(user);
-
-        writeAuditLog(
-
-          user.nama,
-
-          user.role,
-
-          "LOGIN"
-
-        );
-
-        return {
-
-          success:true,
-
-          token:token,
-
-          user:user
-
-        };
-
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetUser = ss.getSheetByName("USER");
+    if (!sheetUser) return { success: false, message: "Sistem Error: Tab 'USER' tidak ditemukan!" };
+    
+    var dataUser = sheetUser.getDataRange().getValues();
+    for (var i = 1; i < dataUser.length; i++) {
+      if (!dataUser[i][0] || !dataUser[i][1]) continue;
+      
+      var dbUsername = dataUser[i][0].toString().trim();
+      var dbPassword = dataUser[i][1].toString().trim();
+      var dbNama     = dataUser[i][2] ? dataUser[i][2].toString().trim() : "User";
+      var dbRole     = dataUser[i][3] ? dataUser[i][3].toString().trim().toLowerCase() : "guru";
+      
+      if (dbUsername === inputUser && dbPassword === inputPass) {
+        return { success: true, role: dbRole, nuptk: dbUsername, name: dbNama };
       }
-
     }
-
-    return {
-
-      success:false,
-
-      message:
-      "Username atau password salah"
-
-    };
-
+    return { success: false, message: "Username atau Password salah / tidak terdaftar!" };
+  } catch (error) {
+    return { success: false, message: "Error Server: " + error.message };
   }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
 }
 
-
-/*************************************************
- * LOGOUT
- *************************************************/
-
-function logout(token){
-
-  const user =
-  getSession(token);
-
-  if(user){
-
-    writeAuditLog(
-
-      user.nama,
-
-      user.role,
-
-      "LOGOUT"
-
-    );
-
-  }
-
-  destroySession(token);
-
-  return true;
-
-}
-
-
-/*************************************************
- * SECURITY
- *************************************************/
-
-function requireLogin(token){
-
-  const user =
-  getSession(token);
-
-  if(!user){
-
-    throw new Error(
-    "Session berakhir"
-    );
-
-  }
-
-  return user;
-
-}
-
-
-function requireAdmin(token){
-
-  const user =
-  requireLogin(token);
-
-  if(
-
-    user.role
-    !==
-    "admin"
-
-  ){
-
-    throw new Error(
-    "Akses ditolak"
-    );
-
-  }
-
-  return true;
-
-}
-/*************************************************
- *
- * PART 2
- * CRUD GURU FINAL
- *
- *************************************************/
-
-
-/*************************************************
- * AMBIL SEMUA GURU
- *************************************************/
-
-function getGuru(){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    const hasil = [];
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      hasil.push({
-
-        id:data[i][0],
-
-        nama:data[i][1],
-
-        nip:data[i][2],
-
-        jabatan:data[i][3],
-
-        username:data[i][4],
-
-        password:data[i][5]
-
-      });
-
+// 2. SIMPAN ABSENSI GTK
+function savePresensi(nuptk, status) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetGTK = ss.getSheetByName("DataGTK");
+    var sheetPresensi = ss.getSheetByName("Presensi") || ss.insertSheet("Presensi");
+    
+    if (sheetPresensi.getLastRow() === 0) {
+      sheetPresensi.appendRow(["Timestamp", "Tanggal", "NUPTK", "Nama GTK", "Status Kehadiran"]);
     }
-
-    return {
-
-      success:true,
-
-      data:hasil
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * AMBIL GURU BERDASARKAN ID
- *************************************************/
-
-function getGuruById(idGuru){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][0] == idGuru
-      ){
-
-        return {
-
-          success:true,
-
-          data:{
-
-            id:data[i][0],
-
-            nama:data[i][1],
-
-            nip:data[i][2],
-
-            jabatan:data[i][3],
-
-            username:data[i][4],
-
-            password:data[i][5]
-
+    
+    var targetNuptk = nuptk ? nuptk.toString().trim() : "";
+    var namaPegawai = "";
+    
+    if (sheetGTK) {
+      var dataGTK = sheetGTK.getDataRange().getValues();
+      for (var i = 1; i < dataGTK.length; i++) {
+        if (dataGTK[i][0] && dataGTK[i][0].toString().trim() === targetNuptk) {
+          namaPegawai = dataGTK[i][1].toString().trim();
+          break;
+        }
+      }
+    }
+    
+    if (!namaPegawai) {
+      var sheetUser = ss.getSheetByName("USER");
+      if (sheetUser) {
+        var dataUser = sheetUser.getDataRange().getValues();
+        for (var k = 1; k < dataUser.length; k++) {
+          if (dataUser[k][0] && dataUser[k][0].toString().trim() === targetNuptk) {
+            namaPegawai = dataUser[k][2].toString().trim();
+            break;
           }
-
-        };
-
-      }
-
-    }
-
-    return {
-
-      success:false,
-
-      message:
-      "Data guru tidak ditemukan"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * TAMBAH GURU
- *************************************************/
-
-function simpanGuru(dataGuru){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][4]
-        ==
-        dataGuru.username
-      ){
-
-        return {
-
-          success:false,
-
-          message:
-          "Username sudah digunakan"
-
-        };
-
-      }
-
-    }
-
-    const idGuru =
-    generateId("GR");
-
-    sheet.appendRow([
-
-      idGuru,
-
-      dataGuru.nama,
-
-      dataGuru.nip,
-
-      dataGuru.jabatan,
-
-      dataGuru.username,
-
-      dataGuru.password
-
-    ]);
-
-    writeAuditLog(
-
-      "Administrator",
-
-      "admin",
-
-      "TAMBAH GURU : " +
-      dataGuru.nama
-
-    );
-
-    return {
-
-      success:true,
-
-      id:idGuru,
-
-      message:
-      "Guru berhasil ditambahkan"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * UPDATE GURU
- *************************************************/
-
-function updateGuru(dataGuru){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][0]
-        ==
-        dataGuru.id
-      ){
-
-        sheet
-        .getRange(i+1,2)
-        .setValue(
-        dataGuru.nama
-        );
-
-        sheet
-        .getRange(i+1,3)
-        .setValue(
-        dataGuru.nip
-        );
-
-        sheet
-        .getRange(i+1,4)
-        .setValue(
-        dataGuru.jabatan
-        );
-
-        sheet
-        .getRange(i+1,5)
-        .setValue(
-        dataGuru.username
-        );
-
-        sheet
-        .getRange(i+1,6)
-        .setValue(
-        dataGuru.password
-        );
-
-        writeAuditLog(
-
-          "Administrator",
-
-          "admin",
-
-          "EDIT GURU : " +
-          dataGuru.nama
-
-        );
-
-        return {
-
-          success:true,
-
-          message:
-          "Data guru berhasil diperbarui"
-
-        };
-
-      }
-
-    }
-
-    return {
-
-      success:false,
-
-      message:
-      "Guru tidak ditemukan"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * HAPUS GURU
- *************************************************/
-
-function hapusGuru(idGuru){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][0]
-        ==
-        idGuru
-      ){
-
-        const namaGuru =
-        data[i][1];
-
-        sheet.deleteRow(
-        i+1
-        );
-
-        writeAuditLog(
-
-          "Administrator",
-
-          "admin",
-
-          "HAPUS GURU : " +
-          namaGuru
-
-        );
-
-        return {
-
-          success:true,
-
-          message:
-          "Guru berhasil dihapus"
-
-        };
-
-      }
-
-    }
-
-    return {
-
-      success:false,
-
-      message:
-      "Guru tidak ditemukan"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * CARI GURU
- *************************************************/
-
-function searchGuru(keyword){
-
-  try{
-
-    keyword =
-    String(keyword)
-    .toLowerCase();
-
-    const guru =
-    getGuru();
-
-    if(
-      !guru.success
-    ){
-
-      return guru;
-
-    }
-
-    const hasil =
-    guru.data.filter(function(item){
-
-      return (
-
-        String(item.nama)
-        .toLowerCase()
-        .indexOf(keyword)
-        > -1
-
-        ||
-
-        String(item.nip)
-        .toLowerCase()
-        .indexOf(keyword)
-        > -1
-
-        ||
-
-        String(item.jabatan)
-        .toLowerCase()
-        .indexOf(keyword)
-        > -1
-
-      );
-
-    });
-
-    return {
-
-      success:true,
-
-      data:hasil
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * PAGINATION GURU
- *************************************************/
-
-function paginationGuru(
-
-page,
-
-limit
-
-){
-
-  try{
-
-    page =
-    Number(page) || 1;
-
-    limit =
-    Number(limit) || 10;
-
-    const guru =
-    getGuru();
-
-    if(
-      !guru.success
-    ){
-
-      return guru;
-
-    }
-
-    const totalData =
-    guru.data.length;
-
-    const totalPage =
-    Math.ceil(
-      totalData
-      /
-      limit
-    );
-
-    const start =
-    (page-1)
-    *
-    limit;
-
-    const end =
-    start
-    +
-    limit;
-
-    return {
-
-      success:true,
-
-      page:page,
-
-      totalPage:
-      totalPage,
-
-      totalData:
-      totalData,
-
-      data:
-      guru.data.slice(
-      start,
-      end
-      )
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * RESET PASSWORD GURU
- *************************************************/
-
-function resetPasswordGuru(
-
-idGuru
-
-){
-
-  try{
-
-    const sheet =
-    getSheet("Guru");
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][0]
-        ==
-        idGuru
-      ){
-
-        sheet
-        .getRange(
-          i+1,
-          6
-        )
-        .setValue(
-        "123456"
-        );
-
-        writeAuditLog(
-
-          "Administrator",
-
-          "admin",
-
-          "RESET PASSWORD : " +
-          data[i][1]
-
-        );
-
-        return {
-
-          success:true,
-
-          message:
-          "Password berhasil direset"
-
-        };
-
-      }
-
-    }
-
-    return {
-
-      success:false,
-
-      message:
-      "Guru tidak ditemukan"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-/*************************************************
- *
- * PART 3
- * ABSENSI FINAL
- *
- *************************************************/
-
-
-/*************************************************
- * KONTAK GURU
- *************************************************/
-
-function getKontakGuru(namaGuru){
-
-  try{
-
-    const sheet =
-    getSheet("Kontak");
-
-    if(!sheet){
-
-      return null;
-
-    }
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][0]
-        ==
-        namaGuru
-      ){
-
-        return {
-
-          wa:data[i][1],
-
-          email:data[i][2]
-
-        };
-
-      }
-
-    }
-
-    return null;
-
-  }
-  catch(err){
-
-    return null;
-
-  }
-
-}
-
-
-/*************************************************
- * KIRIM WHATSAPP
- *************************************************/
-
-function sendWhatsApp(
-nomor,
-pesan
-){
-
-  try{
-
-    if(
-      !CONFIG.WHATSAPP_TOKEN
-    ){
-
-      return;
-
-    }
-
-    UrlFetchApp.fetch(
-
-      CONFIG.WHATSAPP_API,
-
-      {
-
-        method:"post",
-
-        headers:{
-
-          Authorization:
-          CONFIG.WHATSAPP_TOKEN
-
-        },
-
-        payload:{
-
-          target:nomor,
-
-          message:pesan
-
         }
-
       }
-
-    );
-
-  }
-  catch(err){
-
-    Logger.log(err);
-
-  }
-
-}
-
-
-/*************************************************
- * KIRIM EMAIL
- *************************************************/
-
-function sendEmailGuru(
-
-email,
-
-subject,
-
-message
-
-){
-
-  try{
-
-    if(!email){
-
-      return;
-
     }
-
-    MailApp.sendEmail({
-
-      to:email,
-
-      subject:subject,
-
-      htmlBody:message
-
-    });
-
-  }
-  catch(err){
-
-    Logger.log(err);
-
-  }
-
-}
-
-
-/*************************************************
- * STATUS MASUK
- *************************************************/
-
-function getStatusMasuk(jam){
-
-  const menit =
-
-  jam.getHours() * 60 +
-
-  jam.getMinutes();
-
-  const jam0600 = 360;
-
-  const jam0800 = 480;
-
-  const jam0900 = 540;
-
-  if(
-    menit < jam0600
-  ){
-
-    return {
-
-      valid:false,
-
-      status:
-      "Belum Waktu Absen"
-
-    };
-
-  }
-
-  if(
-    menit <= jam0800
-  ){
-
-    return {
-
-      valid:true,
-
-      status:
-      "Tepat Waktu"
-
-    };
-
-  }
-
-  if(
-    menit <= jam0900
-  ){
-
-    return {
-
-      valid:true,
-
-      status:
-      "Terlambat"
-
-    };
-
-  }
-
-  return {
-
-    valid:false,
-
-    status:
-    "Tidak Bisa Absen"
-
-  };
-
-}
-
-
-/*************************************************
- * ABSEN MASUK
- *************************************************/
-
-function absenMasuk(
-
-token
-
-){
-
-  try{
-
-    const user =
-    requireLogin(
-    token
-    );
-
-    const now =
-    new Date();
-
-    const tanggal =
-    formatTanggal(
-    now
-    );
-
-    const jam =
-    formatJam(
-    now
-    );
-
-    const statusData =
-    getStatusMasuk(
-    now
-    );
-
-    if(
-      !statusData.valid
-    ){
-
-      return {
-
-        success:false,
-
-        message:
-        statusData.status
-
-      };
-
-    }
-
-    const sheet =
-    getSheet(
-    "Absensi"
-    );
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-
-        data[i][1]
-        ==
-        tanggal
-
-        &&
-
-        data[i][2]
-        ==
-        user.nama
-
-      ){
-
-        return {
-
-          success:false,
-
-          message:
-          "Sudah absen masuk"
-
-        };
-
-      }
-
-    }
-
-    const id =
-    generateId("ABS");
-
-    sheet.appendRow([
-
-      id,
-
-      tanggal,
-
-      user.nama,
-
-      jam,
-
-      statusData.status,
-
-      "",
-
-      ""
-
-    ]);
-
-    writeAuditLog(
-
-      user.nama,
-
-      user.role,
-
-      "ABSEN MASUK"
-
-    );
-
-    const kontak =
-    getKontakGuru(
-    user.nama
-    );
-
-    if(kontak){
-
-      sendWhatsApp(
-
-        kontak.wa,
-
-        "✅ ABSEN MASUK\n\n" +
-
-        "Nama : " +
-
-        user.nama +
-
-        "\nJam : " +
-
-        jam +
-
-        "\nStatus : " +
-
-        statusData.status
-
-      );
-
-      sendEmailGuru(
-
-        kontak.email,
-
-        "Absensi Masuk",
-
-        "<b>Absensi Masuk Berhasil</b><br><br>" +
-
-        "Nama : " +
-
-        user.nama +
-
-        "<br>Jam : " +
-
-        jam +
-
-        "<br>Status : " +
-
-        statusData.status
-
-      );
-
-    }
-
-    return {
-
-      success:true,
-
-      jam:jam,
-
-      status:
-      statusData.status,
-
-      message:
-      "Absen Masuk Berhasil"
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * ABSEN PULANG
- *************************************************/
-
-function absenPulang(
-
-token
-
-){
-
-  try{
-
-    const user =
-    requireLogin(
-    token
-    );
-
-    const now =
-    new Date();
-
-    const tanggal =
-    formatTanggal(
-    now
-    );
-
-    const jam =
-    formatJam(
-    now
-    );
-
-    const menit =
-
-    now.getHours() * 60 +
-
-    now.getMinutes();
-
-    if(
-      menit < 780
-    ){
-
-      return {
-
-        success:false,
-
-        message:
-        "Belum Waktu Pulang"
-
-      };
-
-    }
-
-    const sheet =
-    getSheet(
-    "Absensi"
-    );
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-
-        data[i][1]
-        ==
-        tanggal
-
-        &&
-
-        data[i][2]
-        ==
-        user.nama
-
-      ){
-
-        if(
-          data[i][5]
-        ){
-
-          return {
-
-            success:false,
-
-            message:
-            "Sudah absen pulang"
-
-          };
-
+    
+    if (!namaPegawai) namaPegawai = "Pegawai (" + targetNuptk + ")";
+    
+    var now = new Date();
+    var formatTanggal = Utilities.formatDate(now, "GMT+7", "yyyy-MM-dd");
+    
+    var logs = sheetPresensi.getDataRange().getValues();
+    for (var j = 1; j < logs.length; j++) {
+      if (logs[j][0] && logs[j][2]) {
+        var checkTgl = Utilities.formatDate(new Date(logs[j][0]), "GMT+7", "yyyy-MM-dd");
+        if (checkTgl === formatTanggal && logs[j][2].toString().trim() === targetNuptk) {
+           return { success: false, message: "Anda sudah melakukan presensi hari ini!" };
         }
-
-        sheet
-        .getRange(
-          i+1,
-          6
-        )
-        .setValue(
-        jam
-        );
-
-        sheet
-        .getRange(
-          i+1,
-          7
-        )
-        .setValue(
-        "Pulang"
-        );
-
-        writeAuditLog(
-
-          user.nama,
-
-          user.role,
-
-          "ABSEN PULANG"
-
-        );
-
-        const kontak =
-        getKontakGuru(
-        user.nama
-        );
-
-        if(kontak){
-
-          sendWhatsApp(
-
-            kontak.wa,
-
-            "🏠 ABSEN PULANG\n\n" +
-
-            "Nama : " +
-
-            user.nama +
-
-            "\nJam : " +
-
-            jam
-
-          );
-
-          sendEmailGuru(
-
-            kontak.email,
-
-            "Absensi Pulang",
-
-            "<b>Absensi Pulang Berhasil</b><br><br>" +
-
-            "Nama : " +
-
-            user.nama +
-
-            "<br>Jam : " +
-
-            jam
-
-          );
-
-        }
-
-        return {
-
-          success:true,
-
-          jam:jam,
-
-          message:
-          "Absensi Pulang Berhasil"
-
-        };
-
       }
-
     }
-
-    return {
-
-      success:false,
-
-      message:
-      "Belum absen masuk"
-
-    };
-
+    
+    sheetPresensi.appendRow([now, formatTanggal, targetNuptk, namaPegawai, status]);
+    return { success: true, name: namaPegawai };
+  } catch (e) {
+    return { success: false, message: "Gagal menyimpan: " + e.message };
   }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
 }
 
-
-/*************************************************
- * RIWAYAT ABSENSI GURU
- *************************************************/
-
-function getRiwayatAbsensi(
-token
-){
-
-  try{
-
-    const user =
-    requireLogin(
-    token
-    );
-
-    const sheet =
-    getSheet(
-    "Absensi"
-    );
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    const hasil = [];
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      if(
-        data[i][2]
-        ==
-        user.nama
-      ){
-
-        hasil.push({
-
-          id:data[i][0],
-
-          tanggal:data[i][1],
-
-          masuk:data[i][3],
-
-          status:data[i][4],
-
-          pulang:data[i][5],
-
-          statusPulang:
-          data[i][6]
-
-        });
-
-      }
-
-    }
-
-    return {
-
-      success:true,
-
-      data:hasil
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * STATISTIK HARI INI
- *************************************************/
-
-function getStatistikHariIni(){
-
-  try{
-
-    const tanggal =
-    formatTanggal(
-    new Date()
-    );
-
-    const guru =
-    getGuru().data;
-
-    const absensi =
-    getSheet("Absensi")
-    .getDataRange()
-    .getValues();
-
-    let hadir = 0;
-    let terlambat = 0;
-
-    for(
-      let i=1;
-      i<absensi.length;
-      i++
-    ){
-
-      if(
-        absensi[i][1]
-        ==
-        tanggal
-      ){
-
-        hadir++;
-
-        if(
-          absensi[i][4]
-          ==
-          "Terlambat"
-        ){
-
-          terlambat++;
-
-        }
-
-      }
-
-    }
-
-    return {
-
-      success:true,
-
-      totalGuru:
-      guru.length,
-
-      hadir:hadir,
-
-      terlambat:
-      terlambat,
-
-      belumAbsen:
-      guru.length
-      -
-      hadir
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-/*************************************************
- *
- * PART 4
- * DASHBOARD & GRAFIK FINAL
- *
- *************************************************/
-
-
-/*************************************************
- * DASHBOARD ADMIN
- *************************************************/
-
-function getDashboardData(){
-
-  try{
-
-    const statistik =
-    getStatistikHariIni();
-
-    const grafik =
-    getGrafikBulanan();
-
-    const rekapCepat =
-    getRekapCepatGuru();
-
-    return {
-
-      success:true,
-
-      statistik:statistik,
-
-      grafik:grafik,
-
-      rekapCepat:rekapCepat
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * GRAFIK BULANAN
- *************************************************/
-
-function getGrafikBulanan(){
-
-  try{
-
-    const sheet =
-    getSheet(
-    "Absensi"
-    );
-
-    const data =
-    sheet
-    .getDataRange()
-    .getValues();
-
-    const bulanIni =
-    Utilities.formatDate(
-
-      new Date(),
-
-      CONFIG.TIMEZONE,
-
-      "MM/yyyy"
-
-    );
-
-    let hadir = 0;
-    let terlambat = 0;
-    let tidakHadir = 0;
-
-    const guru =
-    getGuru();
-
-    for(
-      let i=1;
-      i<data.length;
-      i++
-    ){
-
-      const tgl =
-      data[i][1];
-
-      if(!tgl) continue;
-
-      const bagian =
-      tgl.split("/");
-
-      const bulanData =
-      bagian[1] +
-      "/" +
-      bagian[2];
-
-      if(
-        bulanData
-        ==
-        bulanIni
-      ){
-
-        hadir++;
-
-        if(
-          data[i][4]
-          ==
-          "Terlambat"
-        ){
-
-          terlambat++;
-
-        }
-
-      }
-
-    }
-
-    tidakHadir = Math.max(
-      0,
-      (
-        guru.data.length * 26
-      ) - hadir
-    );
-
-    return {
-
-      success:true,
-
-      labels:[
-
-        "Hadir",
-
-        "Terlambat",
-
-        "Tidak Hadir"
-
-      ],
-
-      data:[
-
-        hadir,
-
-        terlambat,
-
-        tidakHadir
-
-      ]
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * REKAP CEPAT GURU
- *************************************************/
-
-function getRekapCepatGuru(){
-
-  try{
-
-    const guru =
-    getGuru();
-
-    const absensi =
-    getSheet(
-    "Absensi"
-    )
-    .getDataRange()
-    .getValues();
-
-    const hasil = [];
-
-    guru.data.forEach(function(g){
-
-      let hadir = 0;
-
-      let terlambat = 0;
-
-      absensi.forEach(function(a,index){
-
-        if(index===0) return;
-
-        if(
-          a[2]
-          ==
-          g.nama
-        ){
-
-          hadir++;
-
-          if(
-            a[4]
-            ==
-            "Terlambat"
-          ){
-
-            terlambat++;
-
+// 3. AMBIL STATISTIK REALTIME
+function getRealtimeStatistics() {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetGTK = ss.getSheetByName("DataGTK");
+    var sheetPresensi = ss.getSheetByName("Presensi");
+    
+    var totalGTK = sheetGTK ? sheetGTK.getLastRow() - 1 : 0;
+    if (totalGTK < 0) totalGTK = 0;
+    
+    var hadir = 0, izin = 0;
+    if (sheetPresensi) {
+      var data = sheetPresensi.getDataRange().getValues();
+      var todayStr = Utilities.formatDate(new Date(), "GMT+7", "yyyy-MM-dd");
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][0]) {
+          var logDate = Utilities.formatDate(new Date(data[i][0]), "GMT+7", "yyyy-MM-dd");
+          if (logDate === todayStr) {
+            if (data[i][4] === "Hadir") hadir++;
+            else if (data[i][4] === "Izin" || data[i][4] === "Sakit") izin++;
           }
-
         }
-
-      });
-
-      const persen =
-      hadir > 0
-
-      ?
-
-      (
-        (
-          hadir
-          -
-          terlambat
-        )
-        /
-        hadir
-        *
-        100
-      )
-      .toFixed(2)
-
-      :
-
-      0;
-
-      hasil.push({
-
-        guru:g.nama,
-
-        hadir:hadir,
-
-        terlambat:
-        terlambat,
-
-        persentase:
-        persen
-
-      });
-
-    });
-
-    return {
-
-      success:true,
-
-      data:hasil
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * TOP GURU TERBAIK
- *************************************************/
-
-function getTopGuru(){
-
-  try{
-
-    const data =
-    getRekapCepatGuru();
-
-    const ranking =
-    data.data.sort(
-
-      function(a,b){
-
-        return (
-
-          Number(
-          b.persentase
-          )
-
-          -
-
-          Number(
-          a.persentase
-          )
-
-        );
-
       }
-
-    );
-
-    return {
-
-      success:true,
-
-      data:
-      ranking.slice(0,5)
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * DASHBOARD GURU
- *************************************************/
-
-function getDashboardGuru(
-token
-){
-
-  try{
-
-    const user =
-    requireLogin(
-    token
-    );
-
-    const riwayat =
-    getRiwayatAbsensi(
-    token
-    );
-
-    let hadir = 0;
-    let terlambat = 0;
-
-    riwayat.data.forEach(
-
-      function(item){
-
-        hadir++;
-
-        if(
-          item.status
-          ==
-          "Terlambat"
-        ){
-
-          terlambat++;
-
-        }
-
-      }
-
-    );
-
-    return {
-
-      success:true,
-
-      nama:user.nama,
-
-      hadir:hadir,
-
-      terlambat:
-      terlambat,
-
-      riwayat:
-      riwayat.data
-
-    };
-
-  }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
-}
-
-
-/*************************************************
- * DATA CHART BULANAN
- *************************************************/
-
-function getChartBulanan(){
-
-  try{
-
-    const absensi =
-    getSheet(
-    "Absensi"
-    )
-    .getDataRange()
-    .getValues();
-
-    const bulan = {};
-
-    for(
-      let i=1;
-      i<absensi.length;
-      i++
-    ){
-
-      const tgl =
-      absensi[i][1];
-
-      if(!tgl) continue;
-
-      const p =
-      tgl.split("/");
-
-      const key =
-      p[1] +
-      "/" +
-      p[2];
-
-      if(
-        !bulan[key]
-      ){
-
-        bulan[key] = 0;
-
-      }
-
-      bulan[key]++;
-
     }
-
-    const labels =
-    Object.keys(
-    bulan
-    );
-
-    const values =
-    Object.values(
-    bulan
-    );
-
-    return {
-
-      success:true,
-
-      labels:labels,
-
-      data:values
-
-    };
-
+    var alfa = totalGTK - (hadir + izin);
+    return { total: totalGTK, hadir: hadir, izin: izin, alfa: alfa < 0 ? 0 : alfa };
+  } catch (e) {
+    return { total: 0, hadir: 0, izin: 0, alfa: 0 };
   }
-  catch(err){
-
-    return {
-
-      success:false,
-
-      message:
-      err.toString()
-
-    };
-
-  }
-
 }
 
+// 4. RINCIAN ABSENSI PER GTK (PANEL GURU)
+function getRincianAbsenPerGtk(nuptk) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetPresensi = ss.getSheetByName("Presensi");
+    if (!sheetPresensi) return [];
+    
+    var logs = sheetPresensi.getDataRange().getValues();
+    var list = [];
+    var kini = new Date();
+    var bulanKini = Utilities.formatDate(kini, "GMT+7", "MM");
+    var tahunKini = Utilities.formatDate(kini, "GMT+7", "yyyy");
+    var targetNuptk = nuptk ? nuptk.toString().trim() : "";
+    
+    for (var j = 1; j < logs.length; j++) {
+      if (logs[j][2] && logs[j][2].toString().trim() === targetNuptk) {
+        var d = new Date(logs[j][0]);
+        if (Utilities.formatDate(d, "GMT+7", "MM") === bulanKini && Utilities.formatDate(d, "GMT+7", "yyyy") === tahunKini) {
+          list.push({
+            tanggal: Utilities.formatDate(d, "GMT+7", "dd-MM-yyyy"),
+            waktu: Utilities.formatDate(d, "GMT+7", "HH:mm") + " WIB",
+            status: logs[j][4].toString()
+          });
+        }
+      }
+    }
+    return list;
+  } catch (e) { return []; }
+}
 
-/*************************************************
- * DATA DASHBOARD HOME
- *************************************************/
-
-function getHomeDashboard(){
-
-  try{
-
-    const statistik =
-    getStatistikHariIni();
-
-    const grafik =
-    getGrafikBulanan();
-
-    const topGuru =
-    getTopGuru();
-
-    return {
-
-      success:true,
-
-      statistik:
-      statistik,
-
-      grafik:
-      grafik,
-
-      topGuru:
-      topGuru.data
-
-    };
-
+// 5. DATA MASTER KONSOL ADMINISTRATOR
+function getAdminDashboardData() {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetGTK = ss.getSheetByName("DataGTK");
+    var sheetPresensi = ss.getSheetByName("Presensi");
+    
+    var listGtk = [];
+    if (sheetGTK) {
+      var dataGTK = sheetGTK.getDataRange().getValues();
+      for (var i = 1; i < dataGTK.length; i++) {
+        if (dataGTK[i][0]) {
+          listGtk.push({ nuptk: dataGTK[i][0].toString().trim(), nama: dataGTK[i][1] ? dataGTK[i][1].toString().trim() : "" });
+        }
+      }
+    }
+    
+    var rekapAll = [];
+    if (sheetPresensi && listGtk.length > 0) {
+      var logs = sheetPresensi.getDataRange().getValues();
+      var kini = new Date();
+      var bKini = Utilities.formatDate(kini, "GMT+7", "MM");
+      var tKini = Utilities.formatDate(kini, "GMT+7", "yyyy");
+      
+      listGtk.forEach(function(gtk) {
+        var h = 0, iz = 0, s = 0;
+        for (var j = 1; j < logs.length; j++) {
+          if (logs[j][2] && logs[j][2].toString().trim() === gtk.nuptk) {
+            var d = new Date(logs[j][0]);
+            if (Utilities.formatDate(d, "GMT+7", "MM") === bKini && Utilities.formatDate(d, "GMT+7", "yyyy") === tKini) {
+              if (logs[j][4] === "Hadir") h++;
+              if (logs[j][4] === "Izin") iz++;
+              if (logs[j][4] === "Sakit") s++;
+            }
+          }
+        }
+        rekapAll.push({ nuptk: gtk.nuptk, nama: gtk.nama, hadir: h, izin: iz, sakit: s });
+      });
+    } else {
+      rekapAll = listGtk.map(function(g) { return { nuptk: g.nuptk, nama: g.nama, hadir: 0, izin: 0, sakit: 0 }; });
+    }
+    return { listGtk: listGtk, rekapAll: rekapAll };
+  } catch (e) {
+    return { listGtk: [], rekapAll: [] };
   }
-  catch(err){
+}
 
-    return {
+// 6. GENERATE MONTHLY PDF REPORT
+function generateMonthlyPDFReport(nuptk, bulan, tahun) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetGTK = ss.getSheetByName("DataGTK");
+    var sheetPresensi = ss.getSheetByName("Presensi");
+    var targetNuptk = nuptk ? nuptk.toString().trim() : "";
+    
+    var namaGTK = "Tidak Diketahui";
+    if (sheetGTK) {
+      var dataGTK = sheetGTK.getDataRange().getValues();
+      for (var i = 1; i < dataGTK.length; i++) {
+        if (dataGTK[i][0] && dataGTK[i][0].toString().trim() === targetNuptk) {
+          namaGTK = dataGTK[i][1];
+          break;
+        }
+      }
+    }
+    
+    var rowsHtml = "";
+    var countHadir = 0, countIzin = 0, countSakit = 0;
+    
+    if (sheetPresensi) {
+      var logs = sheetPresensi.getDataRange().getValues();
+      var idx = 1;
+      for (var j = 1; j < logs.length; j++) {
+        if (logs[j][2] && logs[j][2].toString().trim() === targetNuptk) {
+          var d = new Date(logs[j][0]);
+          if (Utilities.formatDate(d, "GMT+7", "MM") === bulan && Utilities.formatDate(d, "GMT+7", "yyyy") === tahun) {
+            var status = logs[j][4];
+            if (status === "Hadir") countHadir++;
+            if (status === "Izin") countIzin++;
+            if (status === "Sakit") countSakit++;
+            
+            rowsHtml += "<tr>" +
+                        "<td style='text-align:center;'>" + idx + "</td>" +
+                        "<td>" + Utilities.formatDate(d, "GMT+7", "dd-MM-yyyy") + "</td>" +
+                        "<td>" + Utilities.formatDate(d, "GMT+7", "HH:mm") + " WIB</td>" +
+                        "<td>" + status + "</td>" +
+                        "<td>" + (status === "Hadir" ? "Tepat Waktu" : "Keterangan Terlampir") + "</td>" +
+                        "</tr>";
+            idx++;
+          }
+        }
+      }
+    }
+    
+    if (rowsHtml === "") rowsHtml = "<tr><td colspan='5' style='text-align:center;'>Tidak ada data presensi periode ini</td></tr>";
 
-      success:false,
+    var htmlBody = "<html><head><style>" +
+      "@page { size: A4; margin: 20mm 15mm; }" +
+      "body { font-family: Arial, sans-serif; font-size: 11pt; color: #333; line-height: 1.4; }" +
+      ".kop-table { width: 100%; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }" +
+      ".kop-logo { width: 75px; height: 75px; }" +
+      ".kop-text { text-align: center; vertical-align: middle; }" +
+      ".kop-title { font-size: 16pt; font-weight: bold; margin: 0; color: #006633; }" +
+      ".kop-sub { font-size: 9pt; margin: 5px 0 0 0; color: #444; }" +
+      ".report-title { text-align: center; font-size: 13pt; font-weight: bold; margin-bottom: 20px; text-decoration: underline; }" +
+      ".meta-table { width: 100%; margin-bottom: 15px; }" +
+      ".meta-table td { padding: 4px 0; border: none; }" +
+      ".data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }" +
+      ".data-table th { background-color: #006633; color: white; border: 1px solid #111; padding: 8px; font-size: 10pt; }" +
+      ".data-table td { border: 1px solid #aaa; padding: 7px; font-size: 10pt; }" +
+      ".summary-box { margin-top: 15px; background-color: #f2f2f2; padding: 10px; border: 1px solid #ccc; font-weight: bold; }" +
+      ".ttd-container { margin-top: 40px; width: 100%; }" +
+      ".ttd-table { width: 100%; border: none; }" +
+      ".ttd-table td { width: 50%; text-align: center; border: none; }" +
+      "</style></head><body>" +
+      
+      "<table class='kop-table'><tr>" +
+      "<td style='width:15%; text-align:left; border:none;'><img class='kop-logo' src='https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png'></td>" +
+      "<td class='kop-text' style='width:85%; border:none;'>" +
+      "<div class='kop-title'>MADRASAH ALIYAH AL ISTIQOMAH</div>" +
+      "<div class='kop-sub'>Jl. Kawasan No. 63 Pasir Awi Rt 004 Rw 002 Suka Asih Kec. Pasar Kemis Kab. Tangerang - Banten 15560</div>" +
+      "</td>" +
+      "</tr></table>" +
+      
+      "<div class='report-title'>REKAPITULASI PRESENSI BULANAN GTK</div>" +
+      
+      "<table class='meta-table'>" +
+      "<tr><td style='width:25%;'>Nama Pegawai (PTK)</td><td style='width:3%;'>:</td><td style='font-weight:bold;'>" + namaGTK + "</td></tr>" +
+      "<tr><td>NUPTK / ID PegID</td><td>:</td><td>" + targetNuptk + "</td></tr>" +
+      "<tr><td>Periode Laporan</td><td>:</td><td>Bulan: " + bulan + " / Tahun: " + tahun + "</td></tr>" +
+      "</table>" +
+      
+      "<table class='data-table'><thead><tr>" +
+      "<th style='width:8%;'>No</th><th>Tanggal</th><th>Waktu Log</th><th>Status</th><th>Keterangan</th>" +
+      "</tr></thead><tbody>" +
+      rowsHtml +
+      "</tbody></table>" +
+      
+      "<div class='summary-box'>Ringkasan &mdash; Hadir: " + countHadir + " Hari | Izin: " + countIzin + " Hari | Sakit: " + countSakit + " Hari</div>" +
+      
+      "<div class='ttd-container'><table class='ttd-table'><tr>" +
+      "<td>Mengetahui,<br>Kepala Madrasah<br><br><br><br><b>_______________________</b></td>" +
+      "<td>Tangerang, " + Utilities.formatDate(new Date(), "GMT+7", "dd MMMM yyyy") + "<br>Petugas Administrasi<br><br><br><br><b>_______________________</b></td>" +
+      "</tr></table></div>" +
+      "</body></html>";
+      
+    var blob = Utilities.newBlob(htmlBody, "text/html", "Rekap_" + targetNuptk + "_" + bulan + "_" + tahun + ".html");
+    var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    var htmlFile = folder.createFile(blob);
+    var pdfBlob = htmlFile.getAs("application/pdf");
+    var pdfFile = folder.createFile(pdfBlob);
+    htmlFile.setTrashed(true);
+    
+    return pdfFile.getUrl();
+  } catch (e) { return "Error: " + e.message; }
+}
 
-      message:
-      err.toString()
-
-    };
-
+// 7. GENERATE FILTERED EXCEL DOWNLOAD LINK (ANTI-EMPTY ROW ERROR)
+function generateFilteredExcelLink(nuptk, bulan, tahun) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheetPresensi = ss.getSheetByName("Presensi");
+    var sheetGTK = ss.getSheetByName("DataGTK");
+    var targetNuptk = nuptk ? nuptk.toString().trim() : "";
+    
+    var namaGTK = "Pegawai";
+    if (sheetGTK) {
+      var dataGTK = sheetGTK.getDataRange().getValues();
+      for (var i = 1; i < dataGTK.length; i++) {
+        if (dataGTK[i][0] && dataGTK[i][0].toString().trim() === targetNuptk) {
+          namaGTK = dataGTK[i][1].toString().trim();
+          break;
+        }
+      }
+    }
+    
+    var tempSpreadsheet = SpreadsheetApp.create("Presensi_" + namaGTK.replace(/\s+/g, "_") + "_" + bulan + "_" + tahun);
+    var tempSheet = tempSpreadsheet.getSheets()[0];
+    tempSheet.setName("Data Presensi Terfilter");
+    
+    tempSheet.appendRow(["Nama GTK", ": " + namaGTK]);
+    tempSheet.appendRow(["NUPTK / ID", ": " + targetNuptk]);
+    tempSheet.appendRow(["Periode", ": " + bulan + " - " + tahun]);
+    tempSheet.appendRow([""]); // Baris pembatas string aman
+    tempSheet.appendRow(["No", "Timestamp", "Tanggal", "Status Kehadiran"]);
+    
+    tempSheet.getRange("A5:D5").setBackground("#006633").setFontColor("white").setFontWeight("bold");
+    
+    var barisData = [];
+    if (sheetPresensi) {
+      var logs = sheetPresensi.getDataRange().getValues();
+      var noIdx = 1;
+      for (var j = 1; j < logs.length; j++) {
+        var logNuptk = logs[j][2] !== undefined && logs[j][2] !== null ? logs[j][2].toString().trim() : "";
+        if (logNuptk === targetNuptk) {
+          var tglMentah = logs[j][0];
+          if (!tglMentah || isNaN(Date.parse(tglMentah))) continue;
+          
+          var d = new Date(tglMentah);
+          var mStr = Utilities.formatDate(d, "GMT+7", "MM");
+          var yStr = Utilities.formatDate(d, "GMT+7", "yyyy");
+          
+          if (mStr === bulan && yStr === tahun) {
+            var timestampFormated = Utilities.formatDate(d, "GMT+7", "dd-MM-yyyy HH:mm") + " WIB";
+            var tanggalFormated = Utilities.formatDate(d, "GMT+7", "dd-MM-yyyy");
+            var statusAbsen = logs[j][4] ? logs[j][4].toString().trim() : "-";
+            
+            barisData.push([noIdx, timestampFormated, tanggalFormated, statusAbsen]);
+            noIdx++;
+          }
+        }
+      }
+    }
+    
+    if (barisData.length > 0) {
+      tempSheet.getRange(6, 1, barisData.length, 4).setValues(barisData);
+      tempSheet.getRange(5, 1, barisData.length + 1, 4).setBorder(true, true, true, true, true, true);
+      tempSheet.autoResizeColumns(1, 4);
+    } else {
+      tempSheet.appendRow(["Tidak ada data presensi untuk filter periode ini."]);
+      tempSheet.getRange("A6:D6").merge().setFontStyle("italic").setFontColor("#999999");
+    }
+    
+    SpreadsheetApp.flush();
+    
+    var fileTemp = DriveApp.getFileById(tempSpreadsheet.getId());
+    if (DRIVE_FOLDER_ID && DRIVE_FOLDER_ID !== "") {
+      try {
+        var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+        folder.addFile(fileTemp);
+        DriveApp.getRootFolder().removeFile(fileTemp);
+      } catch (errDrive) {}
+    }
+    
+    return "https://docs.google.com/spreadsheets/d/" + tempSpreadsheet.getId() + "/export?format=xlsx";
+  } catch (e) {
+    return "Error: " + e.message;
   }
-
 }
