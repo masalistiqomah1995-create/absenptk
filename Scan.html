@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<!-- skill:chrome -->
+<style>
+/* Credit line — bottom-right */
+.design-ui-credit {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font: 11px/1 system-ui, sans-serif;
+  color: rgba(128,128,128,0.5);
+  pointer-events: none;
+  z-index: 2147483647;
+  transition: opacity 0.4s ease;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+/* Hide chrome on touch devices */
+@media (hover: none) {
+  .design-ui-credit { display: none; }
+}
+
+/* Print fixes */
+@media print {
+  * {
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .design-ui-credit { display: none !important; }
+}
+
+</style>
+<script>
+(function () {
+    // Design-ui pages are single compositions, so the whole body is editable.
+    function markEditable() {
+        document.body.classList.add('artifact-editable');
+    }
+
+    // Credit badge with idle-fade. Hover devices only.
+    function initChromeUI() {
+        if (!matchMedia('(hover: hover)').matches) return;
+
+        var credit = document.createElement('div');
+        credit.className = 'design-ui-credit';
+        credit.setAttribute('aria-hidden', 'true');
+        credit.innerHTML = '\u{1F49C} by ClickUp Brain';
+        document.body.appendChild(credit);
+
+        var timer = null;
+        var fade = function (out) { credit.style.opacity = out ? '0' : ''; };
+        fade(true);
+        var show = function () {
+            fade(false);
+            clearTimeout(timer);
+            timer = setTimeout(function () { fade(true); }, 3000);
+        };
+        document.addEventListener('mousemove', show);
+        show();
+    }
+
+    function init() {
+        markEditable();
+        initChromeUI();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+</script>
+<!-- /skill:chrome -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absen Guru - e-Hadir MA Al Istiqomah</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#f2f7f4;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;-webkit-font-smoothing:antialiased}
+.card{background:#fff;border-radius:28px;box-shadow:0 4px 24px rgba(20,50,40,.08),0 18px 44px rgba(20,50,40,.06);max-width:400px;width:100%;overflow:hidden}
+.header{background:linear-gradient(155deg,#00583a,#00714a);color:#eafaf2;padding:28px 24px 24px;text-align:center;position:relative}.header::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 20%,rgba(255,255,255,.06) 0%,transparent 60%);pointer-events:none}.header .school{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:8px}.header h1{font-size:1.4rem;font-weight:800;position:relative;z-index:1}.header .subtitle{font-size:.85rem;opacity:.85;margin-top:6px;font-weight:500}.header.pulang{background:linear-gradient(155deg,#5c3d00,#c78400)}
+.body{padding:24px}.clock-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px;padding:14px 20px;background:#e8f5ef;border-radius:14px}.clock-row .time{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:#00583a}.clock-row .date{font-size:.78rem;color:#516158;font-weight:600;line-height:1.4}
+.guru-info{text-align:center;margin-bottom:20px}.guru-avatar{width:64px;height:64px;border-radius:18px;background:#00714a;color:#eafaf2;display:inline-grid;place-items:center;font-size:1.5rem;font-weight:800;margin-bottom:12px}.guru-name{font-size:1.15rem;font-weight:700;color:#20302a}.guru-nip{font-size:.8rem;color:#8a978f;font-weight:500;margin-top:3px;font-variant-numeric:tabular-nums}
+.result{border-radius:16px;padding:20px;text-align:center;margin-top:16px}.result.ok{background:#e3f4ec;border:1.5px solid #c2e6d4}.result.err{background:#fbe7e3;border:1.5px solid #f0c6c0}.result .result-icon{font-size:2.2rem;margin-bottom:8px}.result .result-title{font-size:1rem;font-weight:700;color:#20302a;margin-bottom:4px}.result .result-detail{font-size:.85rem;color:#516158;font-weight:500}.result .result-time{margin-top:12px;font-size:1.8rem;font-weight:800;font-variant-numeric:tabular-nums;color:#268257}.result.err .result-time{color:#d1503f}
+.loading-state{text-align:center;padding:20px 0}.spinner{width:36px;height:36px;border:3px solid #dde6e1;border-top-color:#00714a;border-radius:50%;margin:0 auto 12px;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{font-size:.88rem;color:#8a978f;font-weight:600}
+.footer-info{text-align:center;padding:16px 24px 24px;font-size:.72rem;color:#8a978f;font-weight:500}
+.invalid-card{text-align:center;padding:32px 24px}.invalid-card .icon{font-size:3rem;margin-bottom:12px}.invalid-card h2{font-size:1.1rem;font-weight:700;color:#20302a;margin-bottom:8px}.invalid-card p{font-size:.88rem;color:#516158;max-width:28ch;margin:0 auto;line-height:1.5}
+.fade-in{animation:fadeIn .4s cubic-bezier(0.16,1,0.3,1)}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header" id="header">
+    <div class="school">MA Al Istiqomah</div>
+    <h1 id="headerTitle">Absen Kehadiran Guru</h1>
+    <div class="subtitle" id="headerSub">Satu QR untuk datang & pulang</div>
+  </div>
+  <div class="body">
+    <div class="clock-row"><div class="time" id="clock">--:--</div><div class="date" id="dateLabel">memuat...</div></div>
+    <div id="content"><div class="loading-state"><div class="spinner"></div><div class="loading-text">Memverifikasi identitas...</div></div></div>
+  </div>
+  <div class="footer-info">e-Hadir v1.0 &middot; Sistem Presensi Digital</div>
+</div>
+<script>
+// ============================================================
+// GANTI dengan URL deployment GAS Anda:
+var API_URL = "https://script.google.com/macros/s/AKfycbz302lY-67GftkV5Q9yrP8sb7nosrDB04s562uRxKK0jPUfgQTw859sOt49BHcM9_93/exec";
+// ============================================================
+
+var HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+var BULAN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+function nowWIB(){var d=new Date();return new Date(d.getTime()+(d.getTimezoneOffset()*60000)+(7*3600000))}
+function updateClock(){var j=nowWIB();document.getElementById("clock").textContent=String(j.getHours()).padStart(2,"0")+":"+String(j.getMinutes()).padStart(2,"0");document.getElementById("dateLabel").textContent=HARI[j.getDay()]+", "+j.getDate()+" "+BULAN[j.getMonth()]+" "+j.getFullYear()}
+setInterval(updateClock,1000);updateClock();
+
+var params=new URLSearchParams(window.location.search);
+var NIP=params.get("nip")||"";
+var KEY=params.get("key")||"";
+
+function initials(name){return String(name||"?").replace(/^(H\.|Dra\.|Dr\.|Drs\.)\s*/i,"").trim().split(" ").slice(0,2).map(function(w){return w[0]}).join("").toUpperCase()}
+
+function showResult(r){
+  var isPulang=r.tipe==="pulang";
+  if(isPulang){document.getElementById("header").classList.add("pulang");document.getElementById("headerTitle").textContent="Absen Pulang Tercatat"}
+  else{document.getElementById("headerTitle").textContent="Absen Datang Tercatat"}
+  document.getElementById("headerSub").textContent="Terima kasih, "+r.nama.split(" ")[0];
+  document.getElementById("content").innerHTML='<div class="guru-info fade-in"><div class="guru-avatar">'+initials(r.nama)+'</div><div class="guru-name">'+r.nama+'</div><div class="guru-nip">NIP '+NIP+'</div></div><div class="result ok fade-in"><div class="result-icon">'+(isPulang?'&#128075;':'&#9989;')+'</div><div class="result-title">Absen '+r.tipe.charAt(0).toUpperCase()+r.tipe.slice(1)+' Berhasil</div><div class="result-detail">Status: <strong>'+r.status+'</strong></div><div class="result-time">'+r.jam+' WIB</div></div>';
+}
+
+function showError(msg){
+  document.getElementById("headerTitle").textContent="Gagal Mencatat";
+  document.getElementById("headerSub").textContent="Terjadi masalah";
+  document.getElementById("content").innerHTML='<div class="guru-info fade-in"><div class="guru-avatar" style="background:#d1503f">!</div><div class="guru-name" style="color:#d1503f">Absen Gagal</div></div><div class="result err fade-in"><div class="result-icon">&#9888;</div><div class="result-title">Tidak Dapat Diproses</div><div class="result-detail">'+msg+'</div></div>';
+}
+
+function showInvalid(){
+  document.getElementById("headerTitle").textContent="QR Tidak Valid";
+  document.getElementById("headerSub").textContent="Hubungi admin untuk QR baru";
+  document.getElementById("content").innerHTML='<div class="invalid-card fade-in"><div class="icon">&#9888;</div><h2>QR Code Tidak Dikenali</h2><p>Link ini membutuhkan parameter NIP dan key yang valid dari admin.</p></div>';
+}
+
+// ====== CALL API via GET ======
+if(NIP && KEY){
+  // Panggil apiAbsenQr langsung via GET
+  var url = API_URL + "?fn=apiAbsenQr&args=" + encodeURIComponent(JSON.stringify([NIP, KEY, "auto"]));
+  fetch(url, {redirect:'follow'})
+    .then(function(r){return r.text()})
+    .then(function(text){
+      var r = JSON.parse(text);
+      if(!r.ok) throw new Error(r.error || "Gagal");
+      showResult(r.data);
+    })
+    .catch(function(e){
+      showError(e.message || "Gagal mencatat absen.");
+    });
+} else {
+  showInvalid();
+}
+</script>
+</body>
+</html>
