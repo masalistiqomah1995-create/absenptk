@@ -1,470 +1,220 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#006633">
-<meta name="apple-mobile-web-app-title" content="Absen GTK">
+<!-- skill:chrome -->
+<style>
+/* Credit line — bottom-right */
+.design-ui-credit {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font: 11px/1 system-ui, sans-serif;
+  color: rgba(128,128,128,0.5);
+  pointer-events: none;
+  z-index: 2147483647;
+  transition: opacity 0.4s ease;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
 
-<link rel="manifest" href="<?= ScriptApp.getService().getUrl() ?>?pwa=manifest">
+/* Hide chrome on touch devices */
+@media (hover: none) {
+  .design-ui-credit { display: none; }
+}
 
-<script>
-  // Pendaftaran Service Worker Dinamis untuk Google Apps Script
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('<?= ScriptApp.getService().getUrl() ?>?pwa=sw')
-        .then(reg => console.log('Service Worker berhasil terdaftar:', reg.scope))
-        .catch(err => console.log('Service Worker gagal:', err));
-    });
+/* Print fixes */
+@media print {
+  * {
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
   }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .design-ui-credit { display: none !important; }
+}
+
+</style>
+<script>
+(function () {
+    // Design-ui pages are single compositions, so the whole body is editable.
+    function markEditable() {
+        document.body.classList.add('artifact-editable');
+    }
+
+    // Credit badge with idle-fade. Hover devices only.
+    function initChromeUI() {
+        if (!matchMedia('(hover: hover)').matches) return;
+
+        var credit = document.createElement('div');
+        credit.className = 'design-ui-credit';
+        credit.setAttribute('aria-hidden', 'true');
+        credit.innerHTML = '\u{1F49C} by ClickUp Brain';
+        document.body.appendChild(credit);
+
+        var timer = null;
+        var fade = function (out) { credit.style.opacity = out ? '0' : ''; };
+        fade(true);
+        var show = function () {
+            fade(false);
+            clearTimeout(timer);
+            timer = setTimeout(function () { fade(true); }, 3000);
+        };
+        document.addEventListener('mousemove', show);
+        show();
+    }
+
+    function init() {
+        markEditable();
+        initChromeUI();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
 </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Absensi GTK MA Al Istiqomah</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFic2Vuc2kgR1RLIE1BIEFsIElzdGlxb21haCIsCiAgInNob3J0X25hbWUiOiAiQWJzZW5zaUdUSyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDA2NjMzIiwKICAidGhlbWVfY29sb3IiOiAiIzAwNjYzMyIKfQ==">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="#006633">
-  <style>
-    .bg-madrasah { background-color: #006633; }
-    .text-madrasah { color: #006633; }
-    .border-madrasah { border-color: #006633; }
-  </style>
+<!-- /skill:chrome -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>e-Hadir MA Al Istiqomah</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--em:#00714a;--emd:#00583a;--emw:#e8f5ef;--gold:#f0b429;--goldd:#c78400;--ink:#20302a;--ink2:#516158;--ink3:#8a978f;--ln:#dde6e1;--lns:#eef3f0;--sf2:#f2f7f4;--ok:#2f9e6a;--warn:#d99a2b;--danger:#d1503f;--info:#4d7fc4;--okw:#e3f4ec;--warnw:#fbf1dc;--dangerw:#fbe7e3;--infow:#e8f0fa;--r:12px;--rl:18px;--sh:0 4px 14px rgba(20,50,40,.09);--shs:0 1px 3px rgba(20,50,40,.08);--shl:0 18px 44px rgba(20,50,40,.15);--ease:cubic-bezier(.16,1,.3,1)}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--sf2);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}h1,h2,h3,h4{line-height:1.15}button{font-family:inherit;cursor:pointer;border:none;background:none}input,select,textarea{font-family:inherit;font-size:1rem}a{color:inherit;text-decoration:none}.tnum{font-variant-numeric:tabular-nums}
+.screen{display:none;min-height:100vh}.screen.active{display:block}.lead-hero{position:relative;overflow:hidden;background:linear-gradient(155deg,var(--emd),var(--em));color:#eafaf2}.lead-nav{max-width:1200px;margin:0 auto;padding:20px clamp(16px,4vw,40px);display:flex;align-items:center;position:relative;z-index:2}.brand{display:flex;align-items:center;gap:13px}.brand img{width:46px;height:46px;object-fit:contain;background:#fff;border-radius:11px;padding:5px}.brand .bt{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.82;font-weight:600}.brand .bn{font-weight:800;font-size:1.06rem}.lead-body{max-width:1200px;margin:0 auto;padding:8px clamp(16px,4vw,40px) 64px;position:relative;z-index:2}.lead-copy{max-width:620px;padding:28px 0 44px}.lead-copy h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;margin:16px 0 14px}.lead-copy p{opacity:.9;max-width:52ch}.clock{margin-top:26px;display:inline-flex;align-items:baseline;gap:12px;background:rgba(0,35,22,.4);border:1px solid rgba(255,255,255,.12);padding:12px 20px;border-radius:14px}.clock b{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}.clock span{font-size:.85rem;opacity:.82}
+.tabs{position:relative;z-index:3;max-width:1200px;margin:-32px auto 0;padding:0 clamp(16px,4vw,40px)}.tabbar{display:inline-flex;background:#fff;border-radius:99px;padding:5px;box-shadow:var(--sh);gap:4px}.tabbar button{padding:11px 26px;border-radius:99px;font-weight:700;font-size:.92rem;color:var(--ink2)}.tabbar button.active{background:var(--em);color:#fff}.pane{max-width:1200px;margin:0 auto;padding:28px clamp(16px,4vw,40px) 80px}.pane[hidden]{display:none}
+.home-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:start}@media(max-width:880px){.home-grid{grid-template-columns:1fr}}.panel{background:#fff;border:1px solid var(--lns);border-radius:var(--rl);box-shadow:var(--shs)}.panel-h{padding:18px 22px;border-bottom:1px solid var(--lns);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-h h3{font-size:1.05rem;font-weight:700}.panel-h .sub{font-size:.78rem;color:var(--ink3)}.live{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;color:var(--ok)}.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,158,106,.5)}70%{box-shadow:0 0 0 8px rgba(47,158,106,0)}100%{box-shadow:0 0 0 0 rgba(47,158,106,0)}}
+.sched{padding:8px 10px}.sched-row{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:13px 12px;border-radius:var(--r)}.sched-row:hover{background:var(--emw)}.sched-row+.sched-row{border-top:1px solid var(--lns)}.jam{text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:var(--em);font-size:.82rem;line-height:1.25}.jam small{display:block;font-size:.62rem;color:var(--ink3);font-weight:600}.sched-main .mp{font-weight:700;font-size:.95rem}.sched-main .gr{font-size:.8rem;color:var(--ink2)}.kelas-chip{background:var(--emw);color:var(--emd);font-weight:700;font-size:.75rem;padding:5px 11px;border-radius:99px}.piket-strip{margin:0 16px 16px;background:var(--emw);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px}.piket-strip .ic{width:38px;height:38px;border-radius:10px;background:var(--em);color:#fff;display:grid;place-items:center;flex-shrink:0;font-weight:800}.piket-strip .tx small{display:block;font-size:.7rem;color:var(--emd);font-weight:700;text-transform:uppercase}.piket-strip .tx b{font-size:.95rem}
+.stat-stack{display:flex;flex-direction:column;gap:22px}.stat-block{padding:20px 22px}.stat-block h4{font-size:.82rem;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}.ring-wrap{display:flex;align-items:center;gap:22px}.ring{position:relative;width:120px;height:120px;flex-shrink:0}.ring svg{transform:rotate(-90deg)}.ring .val{position:absolute;inset:0;display:grid;place-content:center;text-align:center}.ring .val b{font-size:1.7rem;font-weight:800}.ring .val span{font-size:.68rem;color:var(--ink3);font-weight:600}.legend{display:flex;flex-direction:column;gap:9px;flex:1}.legend-row{display:flex;align-items:center;gap:9px;font-size:.85rem}.legend-row .dot{width:11px;height:11px;border-radius:4px}.legend-row b{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700}.mini-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mini{background:var(--sf2);border-radius:var(--r);padding:14px;text-align:center}.mini b{display:block;font-size:1.5rem;font-weight:800}.mini span{font-size:.72rem;color:var(--ink3);font-weight:600}.mini.g b{color:var(--ok)}.mini.w b{color:var(--goldd)}.mini.d b{color:var(--danger)}
+.login-wrap{display:grid;grid-template-columns:1fr 1fr;max-width:1100px;margin:0 auto;background:#fff;border-radius:26px;overflow:hidden;box-shadow:var(--shl)}@media(max-width:820px){.login-wrap{grid-template-columns:1fr}.login-aside{display:none}}.login-aside{padding:44px 40px;color:#fff;background:linear-gradient(160deg,#0a8a5c,var(--emd));display:flex;flex-direction:column;justify-content:space-between;min-height:520px}.login-aside img{width:60px;height:60px;background:#fff;border-radius:15px;padding:8px;object-fit:contain}.login-aside h2{font-size:1.8rem;font-weight:800;margin:24px 0 12px}.login-aside p{opacity:.9;max-width:34ch}.login-form{padding:clamp(28px,4vw,46px)}.login-form h2{font-size:1.5rem;font-weight:800}.login-form .lead{color:var(--ink2);margin:6px 0 26px}.role-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:24px}.role-pick button{padding:13px 8px;border:1.5px solid var(--ln);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:7px;font-size:.76rem;font-weight:700;color:var(--ink2)}.role-pick button .ri{width:32px;height:32px;border-radius:9px;background:var(--sf2);display:grid;place-items:center;font-size:1.1rem}.role-pick button.on{border-color:var(--em);background:var(--emw);color:var(--emd)}.role-pick button.on .ri{background:var(--em);color:#fff}.field{margin-bottom:16px}.field label{display:block;font-size:.82rem;font-weight:600;color:var(--ink2);margin-bottom:7px}.inp input,.inp textarea,.inp select{width:100%;padding:12px 14px;border:1.5px solid var(--ln);border-radius:var(--r);background:#fbfdfc}.inp textarea{min-height:70px;resize:vertical}.inp input:focus,.inp textarea:focus{outline:none;border-color:var(--em);box-shadow:0 0 0 3px rgba(0,113,74,.14)}.btn-primary{background:var(--em);color:#fff;width:100%;padding:13px;border-radius:var(--r);font-weight:700}.btn-primary:disabled{opacity:.5}.err-msg{background:var(--dangerw);color:var(--danger);padding:11px 14px;border-radius:var(--r);font-size:.85rem;font-weight:600;margin-bottom:16px;display:none}.err-msg.show{display:block}
+.appshell{display:none;min-height:100vh}.appshell.active{display:grid;grid-template-columns:260px 1fr;grid-template-areas:"side main"}@media(max-width:900px){.appshell.active{grid-template-columns:1fr;grid-template-areas:"main"}}.sidebar{grid-area:side;background:linear-gradient(180deg,var(--emd),var(--em));color:#eafaf2;padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}@media(max-width:900px){.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;z-index:60;transform:translateX(-100%);transition:transform .34s var(--ease);box-shadow:var(--shl)}.sidebar.open{transform:none}.scrim{display:none;position:fixed;inset:0;background:rgba(20,40,30,.5);z-index:55}.scrim.show{display:block}}.side-brand{display:flex;align-items:center;gap:11px;padding:6px 8px 20px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:14px}.side-brand img{width:38px;height:38px;background:#fff;border-radius:10px;padding:4px;object-fit:contain}.side-brand .bn{font-weight:800;font-size:.92rem}.side-brand .bt{font-size:.64rem;opacity:.78;text-transform:uppercase}.nav{display:flex;flex-direction:column;gap:3px;flex:1;overflow-y:auto}.nav a{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:11px;font-size:.88rem;font-weight:600;color:rgba(240,255,248,.86);cursor:pointer}.nav a:hover{background:rgba(255,255,255,.1)}.nav a.on{background:rgba(255,255,255,.16);color:#fff}.nav a .em{width:20px;text-align:center}.side-user{margin-top:14px;padding:12px;background:rgba(255,255,255,.1);border-radius:14px;display:flex;align-items:center;gap:10px}.side-user b{font-size:.84rem;font-weight:700}.side-user span{font-size:.7rem;opacity:.78;display:block}.side-user .lo{margin-left:auto;font-size:1.1rem;color:rgba(240,255,248,.8);padding:6px}
+.main{grid-area:main;min-width:0;display:flex;flex-direction:column}.topbar{position:sticky;top:0;z-index:40;background:rgba(251,253,252,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--lns);padding:14px clamp(16px,3vw,32px);display:flex;align-items:center;gap:14px}.burger{display:none;font-size:1.4rem;color:var(--ink2)}@media(max-width:900px){.burger{display:block}}.topbar h1{font-size:1.2rem;font-weight:800}.topbar p{font-size:.8rem;color:var(--ink3)}.topbar .sp{flex:1}.topbar .clk{font-size:.85rem;font-weight:600;color:var(--ink2)}.topbar .clk b{color:var(--em);font-variant-numeric:tabular-nums}
+.content{padding:clamp(16px,3vw,32px);max-width:1240px;width:100%;margin:0 auto}.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px}.kpi{background:#fff;border:1px solid var(--lns);border-radius:var(--rl);padding:18px}.kpi .lab{font-size:.8rem;color:var(--ink2);font-weight:600}.kpi .num{font-size:1.8rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}.kpi .delta{font-size:.76rem;font-weight:600;margin-top:4px;color:var(--ok)}
+.tablewrap{overflow-x:auto}table.dt{width:100%;border-collapse:collapse;font-size:.86rem}table.dt th{text-align:left;padding:11px 14px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;border-bottom:1.5px solid var(--ln);white-space:nowrap}table.dt td{padding:12px 14px;border-bottom:1px solid var(--lns);vertical-align:middle}table.dt tbody tr:hover{background:var(--emw)}.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:.73rem;font-weight:700}.badge.ok{background:var(--okw);color:#268257}.badge.warn{background:var(--warnw);color:var(--goldd)}.badge.err{background:var(--dangerw);color:var(--danger)}.badge.info{background:var(--infow);color:var(--info)}.badge.na{background:var(--sf2);color:var(--ink3)}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.btn-em{background:var(--em);color:#fff;padding:9px 16px;border-radius:var(--r);font-weight:700;font-size:.86rem;display:inline-flex;align-items:center;gap:6px}.btn-em:hover{background:var(--emd)}.btn-gh{border:1.5px solid var(--ln);color:var(--ink2);background:#fff;padding:9px 14px;border-radius:var(--r);font-weight:600;font-size:.86rem;display:inline-flex;align-items:center;gap:6px}.btn-gh:hover{border-color:var(--em);color:var(--emd)}.selbox{padding:9px 12px;border:1.5px solid var(--ln);border-radius:var(--r);background:#fff;font-weight:600;font-size:.86rem;color:var(--ink2)}
+.empty{text-align:center;padding:48px 20px;color:var(--ink3)}.empty b{display:block;color:var(--ink2);margin-top:6px}.loading{text-align:center;padding:48px;color:var(--ink3)}.spinner{width:32px;height:32px;border:3px solid var(--ln);border-top-color:var(--em);border-radius:50%;margin:0 auto 12px;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}.toast{background:#fff;border:1px solid var(--lns);border-radius:var(--r);box-shadow:var(--shl);padding:12px 16px;display:flex;align-items:center;gap:10px;min-width:260px;font-size:.86rem;font-weight:600}
+</style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
+<body>
+<div class="screen landing active" id="landing">
+<div class="lead-hero"><nav class="lead-nav"><div class="brand"><img src="https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png"><div><div class="bt">Yayasan Hudaatul Umam</div><div class="bn">MA Al Istiqomah</div></div></div></nav><div class="lead-body"><div class="lead-copy"><h1>Kehadiran madrasah, tercatat rapi setiap harinya</h1><p>Absensi siswa, guru di kelas, dan datang-pulang guru dalam satu aplikasi.</p><div class="clock"><b id="heroClock">--:--:--</b><span id="heroDate"></span></div></div></div></div>
+<div class="tabs"><div class="tabbar"><button class="active" id="tabH" onclick="switchTab('home')">Beranda</button><button id="tabL" onclick="switchTab('login')">Masuk</button></div></div>
+<section class="pane" id="paneHome"><div class="home-grid"><div class="panel"><div class="panel-h"><div><h3>Jadwal Pelajaran Hari Ini</h3><span class="sub" id="homeDayLabel"></span></div><span class="live"><i></i> LIVE</span></div><div class="sched" id="homeSched"><div class="loading"><div class="spinner"></div>Memuat...</div></div><div class="piket-strip"><div class="ic">P</div><div class="tx"><small>Guru Piket Hari Ini</small><b id="homePiket">-</b></div></div></div><div class="stat-stack"><div class="panel stat-block"><h4>Kehadiran Siswa Real-time</h4><div class="ring-wrap"><div class="ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--ln)" stroke-width="12"/><circle id="ringSiswa" cx="60" cy="60" r="52" fill="none" stroke="var(--em)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg><div class="val"><b id="rPct">0%</b><span>hadir</span></div></div><div class="legend" id="legS"></div></div></div><div class="panel stat-block"><h4>Kehadiran Guru</h4><div class="mini-metrics"><div class="mini g"><b id="gH">0</b><span>Absen</span></div><div class="mini w"><b id="gB">0</b><span>Belum</span></div><div class="mini d"><b id="gP">0</b><span>Pulang</span></div></div></div></div></div></section>
+<section class="pane" id="paneLogin" hidden><div class="login-wrap"><aside class="login-aside"><div><img src="https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png"><h2>Selamat datang</h2><p>Masuk sesuai peran untuk mencatat kehadiran.</p></div></aside><div class="login-form"><h2>Masuk ke e-Hadir</h2><p class="lead">Pilih peran, masukkan kredensial.</p><div class="role-pick" id="rolePick"><button data-role="admin" class="on"><span class="ri">&#128737;</span>Admin</button><button data-role="kepala"><span class="ri">&#127942;</span>Kepala</button><button data-role="guru"><span class="ri">&#128100;</span>Guru</button><button data-role="piket"><span class="ri">&#9989;</span>Piket</button><button data-role="siswa"><span class="ri">&#127891;</span>Siswa</button></div><div class="err-msg" id="loginErr"></div><form id="loginForm"><div class="field"><label id="uL">Username</label><div class="inp"><input id="uI" autocomplete="off" placeholder="admin"></div></div><div class="field"><label>Kata sandi</label><div class="inp"><input id="pI" type="password" placeholder="********"></div></div><button type="submit" class="btn-primary" id="loginBtn">Masuk</button></form></div></div></section>
+</div>
+<div class="appshell" id="app"><div class="scrim" id="scrim" onclick="closeSB()"></div><aside class="sidebar" id="sb"><div class="side-brand"><img src="https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png"><div><div class="bt">e-Hadir</div><div class="bn">MA Al Istiqomah</div></div></div><nav class="nav" id="nav"></nav><div class="side-user"><div><b id="uN">-</b><span id="uR">-</span></div><button class="lo" onclick="logout()">&#8618;</button></div></aside><main class="main"><header class="topbar"><button class="burger" onclick="openSB()">&#9776;</button><div><h1 id="pgT">Dashboard</h1><p id="pgS"></p></div><div class="sp"></div><div class="clk"><span id="tD"></span> <b id="tC">00:00</b></div></header><div class="content" id="ct"></div></main></div>
+<div class="toast-wrap" id="toasts"></div>
+<script>
+var API_URL="https://script.google.com/macros/s/AKfycbz302lY-67GftkV5Q9yrP8sb7nosrDB04s562uRxKK0jPUfgQTw859sOt49BHcM9_93/exec";
+function gcall(fn){var a=[].slice.call(arguments,1),p=JSON.stringify(a);if(p.length<1800){return fetch(API_URL+"?fn="+encodeURIComponent(fn)+"&args="+encodeURIComponent(p),{redirect:"follow"}).then(function(r){return r.text()}).then(function(t){var j=JSON.parse(t);if(!j.ok)throw new Error(j.error||"Error");return j.data})}return fetch(API_URL,{method:"POST",body:JSON.stringify({fn:fn,args:a}),headers:{"Content-Type":"text/plain;charset=utf-8"},redirect:"follow"}).then(function(r){return r.text()}).then(function(t){var j=JSON.parse(t);if(!j.ok)throw new Error(j.error||"Error");return j.data})}
+var TK=null,SE=null,H=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],BL=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],$=function(s){return document.querySelector(s)},$$=function(s){return document.querySelectorAll(s)};
+function now(){var d=new Date();return new Date(d.getTime()+(d.getTimezoneOffset()*60000)+7*3600000)}function pad(n){return String(n).padStart(2,"0")}function ft(d,s){return pad(d.getHours())+":"+pad(d.getMinutes())+(s?":"+pad(d.getSeconds()):"")}function fd(d){return H[d.getDay()]+", "+d.getDate()+" "+BL[d.getMonth()].slice(0,3)+" "+d.getFullYear()}function fdl(d){return H[d.getDay()]+", "+d.getDate()+" "+BL[d.getMonth()]+" "+d.getFullYear()}
+setInterval(function(){var d=now();if($("#heroClock"))$("#heroClock").textContent=ft(d,1),$("#heroDate").textContent=fdl(d);if($("#tC"))$("#tC").textContent=ft(d),$("#tD").textContent=fd(d)},1000);
+function switchTab(t){$("#tabH").classList.toggle("active",t==="home");$("#tabL").classList.toggle("active",t==="login");$("#paneHome").hidden=t!=="home";$("#paneLogin").hidden=t!=="login"}
+function loadHome(){gcall("apiHome").then(function(h){renderHome(h)}).catch(function(){$("#homeSched").innerHTML='<div class="empty"><b>Gagal memuat</b></div>'})}
+function renderHome(h){var s=$("#homeSched");if(!(h.jadwal||[]).length)s.innerHTML='<div class="empty"><b>Tidak ada jadwal '+h.hari+'</b></div>';else s.innerHTML=h.jadwal.map(function(j){return'<div class="sched-row"><div class="jam">'+j["Jam Mulai"]+'<small>Jam '+j["Jam Ke"]+'</small></div><div class="sched-main"><div class="mp">'+j.Mapel+'</div><div class="gr">'+j["Nama Guru"]+' &middot; '+j.JTM+' JTM</div></div><div class="kelas-chip">'+j.Kelas+'</div></div>'}).join("");$("#homeDayLabel").textContent=h.hari+" \u00b7 berbasis JTM";$("#homePiket").textContent=h.piket?h.piket["Nama Guru Piket"]:"Belum diatur";var c=h.statistik.siswa,tot=c.Hadir+c.Sakit+c.Izin+c.Alpa,pct=tot?Math.round(c.Hadir/tot*100):0,C=2*Math.PI*52;$("#ringSiswa").style.strokeDashoffset=C-(pct/100)*C;$("#rPct").textContent=pct+"%";var cols={Hadir:"var(--ok)",Sakit:"var(--warn)",Izin:"var(--info)",Alpa:"var(--danger)"};$("#legS").innerHTML=Object.keys(cols).map(function(k){return'<div class="legend-row"><span class="dot" style="background:'+cols[k]+'"></span>'+k+'<b>'+c[k]+'</b></div>'}).join("");var g=h.statistik.guru;$("#gH").textContent=g.datang;$("#gB").textContent=Math.max(0,g.total-g.datang);$("#gP").textContent=g.pulang}
+var pR="admin",RM={admin:{l:"Username",p:"admin"},kepala:{l:"Username",p:"kepala"},guru:{l:"Username",p:"budi"},piket:{l:"Username",p:"piket"},siswa:{l:"NISN",p:"0051234567"}};$$("#rolePick button").forEach(function(b){b.onclick=function(){$$("#rolePick button").forEach(function(x){x.classList.remove("on")});b.classList.add("on");pR=b.dataset.role;$("#uL").textContent=RM[pR].l;$("#uI").placeholder=RM[pR].p}});$("#loginForm").onsubmit=function(e){e.preventDefault();var u=$("#uI").value.trim(),p=$("#pI").value.trim(),err=$("#loginErr"),btn=$("#loginBtn");err.classList.remove("show");btn.disabled=1;btn.textContent="...";gcall("apiLogin",pR,u,p).then(function(r){TK=r.token;SE=r.user;enterApp()}).catch(function(e){err.textContent=e.message;err.classList.add("show")}).then(function(){btn.disabled=0;btn.textContent="Masuk"})};
+var NAV={admin:[["dash","&#9783;","Dashboard"],["dataGuru","&#128101;","Data Guru"],["dataSiswa","&#127891;","Data Siswa"],["jadwal","&#128197;","Jadwal"],["piket","&#9989;","Guru Piket"],["rkKelas","&#128682;","Rekap Masuk Kelas"],["rkDP","&#8618;","Rekap Datang-Pulang"],["kaldik","&#128198;","Kalender Akademik"],["printAll","&#128424;","Print Rekap"],["dl","&#11123;","Download"],["qr","&#9635;","QR Code"],["set","&#9881;","Pengaturan"]],kepala:[["dash","&#9783;","Dashboard"],["kpKelas","&#128682;","Rekap Guru di Kelas"],["kpDP","&#8618;","Rekap Datang-Pulang"]],guru:[["dash","&#9783;","Dashboard"],["absenDP","&#128273;","Absen Datang-Pulang"]],guru_piket:[["dash","&#9783;","Dashboard"],["absSiswa","&#9989;","Absensi Siswa"],["absGK","&#128682;","Absen Masuk Kelas"],["cetakGK","&#128424;","Cetak Masuk Kelas"]],siswa:[["bio","&#128100;","Biodata"],["rkSaya","&#128203;","Rekap Saya"]]};
+// FIX BUG #2: Page titles map
+var TT={dash:"Dashboard|Statistik realtime",dataGuru:"Data Guru|Kelola data guru",dataSiswa:"Data Siswa|Kelola data siswa",jadwal:"Jadwal Pelajaran|",piket:"Guru Piket|Jadwal piket",rkKelas:"Rekap Masuk Kelas|Kehadiran guru mengajar",rkDP:"Rekap Datang-Pulang|Kehadiran harian guru",kaldik:"Kalender Akademik|",printAll:"Print Rekap|Format F5",dl:"Download|Excel",qr:"QR Code|Print & unduh",set:"Pengaturan|",kpKelas:"Rekap Guru di Kelas|Persentase",kpDP:"Rekap Datang-Pulang|Persentase",absenDP:"Absen Datang-Pulang|Catat kehadiran",absSiswa:"Absensi Siswa|Catat kehadiran siswa",absGK:"Absen Masuk Kelas|Berdasarkan jadwal",cetakGK:"Cetak Masuk Kelas|Format F5",bio:"Biodata|Edit data diri",rkSaya:"Rekap Saya|Riwayat kehadiran"};
+var RL={admin:"Admin",kepala_madrasah:"Kepala Madrasah",guru:"Guru",guru_piket:"Guru Piket",siswa:"Siswa"};function nk(){return SE.role==="kepala_madrasah"?"kepala":SE.role}
+function enterApp(){$("#landing").classList.remove("active");$("#app").classList.add("active");$("#uN").textContent=SE.name;$("#uR").textContent=RL[SE.role]||SE.role;var k=nk();$("#nav").innerHTML=NAV[k].map(function(n){return'<a data-v="'+n[0]+'" onclick="go(\''+n[0]+'\')"><span class="em">'+n[1]+'</span>'+n[2]+'</a>'}).join("");go(NAV[k][0][0])}
+function logout(){TK=SE=null;$("#app").classList.remove("active");$("#landing").classList.add("active");switchTab("home");loadHome()}
+function openSB(){$("#sb").classList.add("open");$("#scrim").classList.add("show")}function closeSB(){$("#sb").classList.remove("open");$("#scrim").classList.remove("show")}
+// FIX BUG #2: go() now updates page title
+function go(v){$$("#nav a").forEach(function(a){a.classList.toggle("on",a.dataset.v===v)});closeSB();var t=(TT[v]||"|").split("|");$("#pgT").textContent=t[0];$("#pgS").textContent=t[1]||"";var b=$("#ct");b.innerHTML='<div class="loading"><div class="spinner"></div></div>';if(V[v])V[v](b);else b.innerHTML='<div class="empty"><b>Segera hadir</b></div>'}
+function toast(t,m){var e=document.createElement("div");e.className="toast";e.textContent=(t==="ok"?"\u2713 ":"\u26A0 ")+m;$("#toasts").appendChild(e);setTimeout(function(){e.remove()},3500)}
+function badge(s){var m={Hadir:"ok",Izin:"info",Sakit:"warn",Alpa:"err","Tidak Hadir":"err","Tepat Waktu":"ok",Terlambat:"warn"};return'<span class="badge '+(m[s]||"na")+'">'+s+'</span>'}
+function bln(){var d=now();return d.getFullYear()+"-"+pad(d.getMonth()+1)}
+function errB(e){return'<div class="empty">\u26A0 '+((e&&e.message)||"Error")+'</div>'}
+function kopF5(k,title,m1,m2,m3){return'<div style="display:flex;align-items:center;gap:14px;border-bottom:3px double #000;padding-bottom:8px"><img src="'+k.logo+'" style="width:56px;height:56px;object-fit:contain"><div style="flex:1;text-align:center"><div style="font-size:11pt;font-weight:bold">'+k.yayasan+'</div><div style="font-size:15pt;font-weight:bold">'+k.madrasah+'</div><div style="font-size:8pt">'+k.alamat+'</div><div style="font-size:7.5pt">website: '+k.web+' | email: '+k.email+'</div></div></div><div style="text-align:center;margin:10px 0 4px"><div style="font-size:12pt;font-weight:bold;text-decoration:underline">'+title+'</div></div><div style="display:flex;justify-content:space-between;font-size:10pt;margin-top:6px"><span>'+m1+'</span><span>'+m2+'</span><span>'+m3+'</span></div>'}
+function openPr(h){var w=window.open("","_blank");w.document.write(h);w.document.close();setTimeout(function(){w.print()},600)}
+function exportXlsx(j){toast("ok","Menyiapkan Excel...");gcall("apiExportXlsx",TK,j,{bulan:bln()}).then(function(r){var bin=atob(r.b64),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);var bl=new Blob([a],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),lnk=document.createElement("a");lnk.href=URL.createObjectURL(bl);lnk.download=r.nama;lnk.click();toast("ok","Terunduh: "+r.nama)}).catch(function(e){toast("err",e.message)})}
+var V={};
+// FIX BUG #5: Dashboard now shows piket info
+V.dash=function(b){gcall("apiHome").then(function(h){var c=h.statistik.siswa,tot=c.Hadir+c.Sakit+c.Izin+c.Alpa,pct=tot?Math.round(c.Hadir/tot*100):0,g=h.statistik.guru,gk=h.statistik.guruKelas;var piketInfo=h.piket?h.piket["Nama Guru Piket"]:"Belum diatur";b.innerHTML='<div class="kpi-grid"><div class="kpi"><div class="lab">Kehadiran Siswa</div><div class="num">'+pct+'%</div><div class="delta">'+c.Hadir+'/'+tot+'</div></div><div class="kpi"><div class="lab">Guru Absen</div><div class="num">'+g.datang+'/'+g.total+'</div></div><div class="kpi"><div class="lab">Masuk Kelas</div><div class="num">'+gk.hadir+'</div><div class="delta" style="color:var(--danger)">'+gk.tidak+' tidak</div></div><div class="kpi"><div class="lab">Guru Piket</div><div class="num" style="font-size:1.1rem">'+piketInfo+'</div></div></div><div class="panel" style="padding:18px"><div class="panel-h" style="border:none;padding:0 0 10px"><h3>Jadwal '+h.hari+'</h3><span class="live"><i></i> LIVE</span></div><div class="sched">'+(h.jadwal.length?h.jadwal.map(function(j){return'<div class="sched-row"><div class="jam">'+j["Jam Mulai"]+'<small>ke-'+j["Jam Ke"]+'</small></div><div class="sched-main"><div class="mp">'+j.Mapel+'</div><div class="gr">'+j["Nama Guru"]+'</div></div><div class="kelas-chip">'+j.Kelas+'</div></div>'}).join(""):'<div class="empty">Tidak ada jadwal</div>')+'</div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.dataGuru=function(b){gcall("apiList",TK,"guru").then(function(r){b.innerHTML='<div class="toolbar"><button class="btn-gh" onclick="dlTpl(\'guru\')">&#11123; Template</button><label class="btn-gh" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="upCSV(this,\'guru\')">&#11014; Upload CSV</label></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Nama</th><th>NIP</th><th>Mapel</th><th>HP</th></tr></thead><tbody>'+r.map(function(g){return'<tr><td><b>'+g.Nama+'</b></td><td class="tnum">'+g.NIP+'</td><td>'+(g.Mapel||'-')+'</td><td class="tnum">'+(g["No HP"]||'-')+'</td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.dataSiswa=function(b){gcall("apiList",TK,"siswa").then(function(r){b.innerHTML='<div class="toolbar"><button class="btn-gh" onclick="dlTpl(\'siswa\')">&#11123; Template</button><label class="btn-gh" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="upCSV(this,\'siswa\')">&#11014; Upload CSV</label></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Nama</th><th>NISN</th><th>Kelas</th><th>JK</th></tr></thead><tbody>'+r.map(function(s){return'<tr><td><b>'+s.Nama+'</b></td><td class="tnum">'+s.NISN+'</td><td>'+s.Kelas+'</td><td>'+s.JK+'</td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.jadwal=function(b){gcall("apiList",TK,"jadwal").then(function(r){b.innerHTML='<div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Hari</th><th>Jam</th><th>Kelas</th><th>Mapel</th><th>Guru</th></tr></thead><tbody>'+r.map(function(j){return'<tr><td>'+j.Hari+'</td><td class="tnum">'+j["Jam Mulai"]+'</td><td>'+j.Kelas+'</td><td>'+j.Mapel+'</td><td>'+j["Nama Guru"]+'</td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.piket=function(b){gcall("apiList",TK,"piket").then(function(r){
+  window._piket=r;
+  b.innerHTML='<div class="toolbar"><button class="btn-em" onclick="addPiket()">+ Tambah Piket</button></div>'
+    +'<div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Hari</th><th>Guru Piket</th><th>NIP</th><th style="text-align:right">Aksi</th></tr></thead><tbody>'
+    +r.map(function(p){
+      return '<tr><td>'+p.Hari+'</td><td>'+p["Nama Guru Piket"]+'</td><td class="tnum">'+p.NIP+'</td>'
+        +'<td style="text-align:right">'
+        +'<button class="btn-gh" style="padding:4px 8px;font-size:.72rem" onclick="editPiket('+p.ID+')">&#9998;</button> '
+        +'<button class="btn-gh" style="padding:4px 8px;font-size:.72rem" onclick="delPiket('+p.ID+')">&#128465;</button>'
+        +'</td></tr>';
+    }).join("")
+    +'</tbody></table></div></div>';
+}).catch(function(e){b.innerHTML=errB(e)})};
 
-  <header class="bg-madrasah text-white shadow-md sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <img src="https://masalistiqomah.sch.id/wp-content/uploads/2026/05/logo-e1492233052256.png" class="w-10 h-10 object-contain bg-white rounded-full p-1" alt="Logo">
-        <div>
-          <h1 class="font-bold text-base md:text-lg leading-tight">MA AL ISTIQOMAH</h1>
-          <p class="text-xs text-green-200">Sistem Informasi Presensi GTK</p>
-        </div>
-      </div>
-      <nav class="flex space-x-2">
-        <button onclick="switchView('home-view')" class="px-3 py-1.5 rounded text-sm font-medium hover:bg-green-700 transition">Home</button>
-        <button id="nav-login-btn" onclick="switchView('login-view')" class="bg-white text-green-800 px-3 py-1.5 rounded text-sm font-semibold hover:bg-green-100 transition">Login Sistem</button>
-        <button id="nav-logout-btn" onclick="actionLogout()" class="hidden bg-red-600 text-white px-3 py-1.5 rounded text-sm font-semibold hover:bg-red-700 transition">Keluar</button>
-      </nav>
-    </div>
-  </header>
 
-  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 max-w-sm w-full bg-white border-l-4 shadow-xl p-4 rounded flex items-start space-x-3 transition-all">
-    <div id="toast-icon" class="text-xl"></div>
-    <div class="flex-1"><p id="toast-message" class="text-sm font-medium"></p></div>
-  </div>
+// FIX BUG #3: rkKelas and rkDP now have inline filter for print
+V.rkKelas=function(b){gcall("apiRekapGuruKelasAgg",TK,bln()).then(function(r){window._gkA=r;b.innerHTML='<div class="toolbar"><button class="btn-em" onclick="prGK()">&#128424; Cetak F5</button><button class="btn-gh" onclick="exportXlsx(\'kelas\')">&#11123; Excel</button></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>No</th><th>ID</th><th>Nama</th><th>Beban</th><th>Absen</th><th>Sisa</th></tr></thead><tbody>'+r.map(function(x,i){return'<tr><td>'+(i+1)+'</td><td class="tnum">'+x.id+'</td><td>'+x.nama+'</td><td class="tnum">'+x.beban+'</td><td class="tnum">'+x.absen+'</td><td class="tnum">'+x.sisa+'</td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.rkDP=function(b){Promise.all([gcall("apiRekap",TK,"datang",{bulan:bln()}),gcall("apiList",TK,"guru")]).then(function(res){var r=res[0],guru=res[1];window._dpR=r;b.innerHTML='<div class="toolbar"><select class="selbox" id="rkDPGuru"><option value="">Semua Guru</option>'+guru.map(function(g){return'<option value="'+g.NIP+'">'+g.Nama+'</option>'}).join("")+'</select><button class="btn-em" onclick="prDP()">&#128424; Cetak F5</button><button class="btn-gh" onclick="exportXlsx(\'datang\')">&#11123; Excel</button></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Tanggal</th><th>Guru</th><th>Masuk</th><th>Pulang</th><th>Terlambat</th><th>Cepat</th></tr></thead><tbody>'+r.map(function(a){return'<tr><td class="tnum">'+a.Tanggal+'</td><td>'+a["Nama Guru"]+'</td><td class="tnum">'+(a["Jam Datang"]||"-")+'</td><td class="tnum">'+(a["Jam Pulang"]||"-")+'</td><td>'+(a["Status Datang"]==="Terlambat"?"Ya":"-")+'</td><td>'+(a["Status Pulang"]==="Pulang Lebih Dulu"?"Ya":"-")+'</td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.kaldik=function(b){gcall("apiList",TK,"kaldik").then(function(r){b.innerHTML='<div class="toolbar"><button class="btn-em" onclick="addKal()">+ Tambah</button></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th></th></tr></thead><tbody>'+(r.length?r.map(function(k){return'<tr><td class="tnum">'+k.Tanggal+'</td><td>'+k.Keterangan+'</td><td>'+(k.Jenis||"-")+'</td><td><button class="btn-gh" style="padding:4px 8px;font-size:.72rem" onclick="delKal('+k.ID+')">&#128465;</button></td></tr>'}).join(""):'<tr><td colspan="4"><div class="empty"><b>Kosong</b></div></td></tr>')+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.printAll=function(b){Promise.all([gcall("apiList",TK,"siswa"),gcall("apiList",TK,"guru")]).then(function(res){var sw=res[0],gr=res[1],kl=[],sn={};sw.forEach(function(s){if(!sn[s.Kelas]){sn[s.Kelas]=1;kl.push(s.Kelas)}});b.innerHTML='<div class="panel" style="padding:24px;max-width:580px"><h3 style="margin-bottom:18px">Print Rekap (F5)</h3><div class="field"><label>Kelas (rekap siswa)</label><div class="inp"><select id="prKl">'+kl.map(function(k){return'<option>'+k+'</option>'}).join("")+'</select></div></div><div class="field"><label>Guru (rekap datang-pulang)</label><div class="inp"><select id="prGr">'+gr.map(function(g){return'<option value="'+g.NIP+'">'+g.Nama+'</option>'}).join("")+'</select></div></div><div style="display:flex;flex-direction:column;gap:10px;margin-top:16px"><button class="btn-gh" onclick="prSiswa()">&#128424; Cetak Siswa (per kelas)</button><button class="btn-gh" onclick="prGK()">&#128424; Cetak Guru di Kelas</button><button class="btn-gh" onclick="prDP()">&#128424; Cetak Datang-Pulang (per guru)</button></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.dl=function(b){b.innerHTML='<div class="panel" style="padding:24px;max-width:500px"><h3>Download Excel</h3><div style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><button class="btn-gh" onclick="exportXlsx(\'siswa\')">Siswa</button><button class="btn-gh" onclick="exportXlsx(\'kelas\')">Guru Kelas</button><button class="btn-gh" onclick="exportXlsx(\'datang\')">Datang-Pulang</button></div></div>'};
+V.qr=function(b){gcall("apiGetGuruQrList",TK).then(function(l){window._qr=l;b.innerHTML='<div class="toolbar"><button class="btn-em" onclick="prAllQr()">&#128424; Print Semua</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">'+l.map(function(g){return'<div class="panel" style="padding:18px;text-align:center"><img src="'+g.qr+'" style="width:160px;height:160px;border-radius:10px;border:2px solid var(--ln)"><div style="margin-top:10px;font-weight:700">'+g.nama+'</div><div style="font-size:.78rem;color:var(--ink3)">NIP: '+g.nip+'</div><div style="display:flex;gap:6px;justify-content:center;margin-top:10px"><button class="btn-gh" style="font-size:.76rem;padding:6px 10px" onclick="prQr(\''+g.nama.replace(/'/g,"\\'")+'\',\''+g.nip+'\',\''+g.qr+'\')">Print</button><a href="'+g.qr+'" download="QR-'+g.nip+'.png" class="btn-em" style="font-size:.76rem;padding:6px 10px;text-decoration:none">Unduh PNG</a></div></div>'}).join("")+'</div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.set=function(b){gcall("apiGetSettings",TK).then(function(c){b.innerHTML='<div class="panel" style="max-width:520px;padding:24px"><h3 style="margin-bottom:16px">Pengaturan</h3><div class="field"><label>Tahun Pelajaran</label><div class="inp"><input id="sTP" value="'+(c.tahun_pelajaran||"")+'"></div></div><div class="field"><label>Semester</label><div class="inp"><select id="sSm"><option'+(c.semester==="Ganjil"?" selected":"")+'>Ganjil</option><option'+(c.semester==="Genap"?" selected":"")+'>Genap</option></select></div></div><button class="btn-em" style="width:100%;margin-top:8px" onclick="savSet()">Simpan</button></div>'}).catch(function(e){b.innerHTML=errB(e)})};function savSet(){gcall("apiSaveSettings",TK,{tahun_pelajaran:$("#sTP").value,semester:$("#sSm").value}).then(function(){toast("ok","Tersimpan")}).catch(function(e){toast("err",e.message)})}
+V.kpKelas=function(b){gcall("apiRekapGuruKelasAgg",TK,bln()).then(function(r){b.innerHTML='<div class="panel"><div class="panel-h"><h3>Kehadiran Guru di Kelas</h3></div><div class="tablewrap"><table class="dt"><thead><tr><th>Nama</th><th>Beban</th><th>Absen</th><th>Sisa</th><th>%</th></tr></thead><tbody>'+r.map(function(x){var p=x.beban?Math.round(x.sisa/x.beban*100):0;return'<tr><td>'+x.nama+'</td><td class="tnum">'+x.beban+'</td><td class="tnum">'+x.absen+'</td><td class="tnum">'+x.sisa+'</td><td><b>'+p+'%</b></td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.kpDP=function(b){gcall("apiRekap",TK,"datang",{bulan:bln()}).then(function(rows){var m={};rows.forEach(function(r){var k=r["Nama Guru"];if(!m[k])m[k]={n:k,t:0,tp:0,tl:0};m[k].t++;if(r["Status Datang"]==="Tepat Waktu")m[k].tp++;if(r["Status Datang"]==="Terlambat")m[k].tl++});var a=Object.keys(m).map(function(k){return m[k]});b.innerHTML='<div class="panel"><div class="panel-h"><h3>Datang-Pulang</h3></div><div class="tablewrap"><table class="dt"><thead><tr><th>Nama</th><th>Hari</th><th>Tepat</th><th>Terlambat</th><th>%</th></tr></thead><tbody>'+a.map(function(x){var p=x.t?Math.round(x.tp/x.t*100):0;return'<tr><td>'+x.n+'</td><td class="tnum">'+x.t+'</td><td class="tnum">'+x.tp+'</td><td class="tnum">'+x.tl+'</td><td><b>'+p+'%</b></td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.absenDP=function(b){b.innerHTML='<div class="panel" style="max-width:480px;margin:0 auto;padding:28px;text-align:center"><h3>Absen Datang-Pulang</h3><p style="color:var(--ink2);margin:12px 0 18px">Klik untuk mencatat.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><button class="btn-em" onclick="doAbs(\'datang\')">Datang</button><button class="btn-gh" style="background:var(--gold);color:var(--emd);border:none;font-weight:700" onclick="doAbs(\'pulang\')">Pulang</button></div><div id="absMsg" style="margin-top:14px"></div></div>'};function doAbs(t){gcall("apiAbsenDatangPulang",TK,t).then(function(r){toast("ok",r.tipe+" "+r.jam);$("#absMsg").innerHTML='<b style="color:var(--ok)">'+r.tipe+" "+r.jam+" ("+r.status+")</b>"}).catch(function(e){toast("err",e.message);$("#absMsg").innerHTML='<b style="color:var(--danger)">'+e.message+"</b>"})}
+V.absSiswa=function(b){gcall("apiList",TK,"siswa").then(function(r){window._sw=r;var kl=[],sn={};r.forEach(function(s){if(!sn[s.Kelas]){sn[s.Kelas]=1;kl.push(s.Kelas)}});b.innerHTML='<div class="toolbar"><select class="selbox" id="aK" onchange="rA()">'+kl.map(function(k){return'<option>'+k+'</option>'}).join("")+'</select><div style="flex:1"></div><button class="btn-em" onclick="sA()">Simpan</button></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Siswa</th><th>NISN</th><th>Status</th></tr></thead><tbody id="aB"></tbody></table></div></div>';rA()}).catch(function(e){b.innerHTML=errB(e)})};function rA(){var kl=$("#aK").value;$("#aB").innerHTML=(window._sw||[]).filter(function(s){return s.Kelas===kl}).map(function(s){return'<tr data-n="'+s.NISN+'" data-nm="'+s.Nama+'"><td><b>'+s.Nama+'</b></td><td class="tnum">'+s.NISN+'</td><td><select class="selbox ss" style="padding:6px 10px"><option>Hadir</option><option>Sakit</option><option>Izin</option><option>Alpa</option></select></td></tr>'}).join("")}function sA(){var items=[].map.call($$("#aB tr"),function(tr){return{nisn:tr.dataset.n,nama:tr.dataset.nm,status:tr.querySelector(".ss").value}});gcall("apiAbsenSiswa",TK,$("#aK").value,"H","",items).then(function(){toast("ok",items.length+" siswa tersimpan")}).catch(function(e){toast("err",e.message)})}
+V.absGK=function(b){gcall("apiHome").then(function(h){var j=h.jadwal||[];b.innerHTML='<div class="toolbar"><div style="flex:1"></div><button class="btn-em" onclick="sGK()">Simpan</button></div><div class="panel"><div class="tablewrap"><table class="dt"><thead><tr><th>Jam</th><th>Kelas</th><th>Guru</th><th>Status</th><th>Catatan</th></tr></thead><tbody id="gkB">'+j.map(function(x){return'<tr data-j="'+x["Jam Ke"]+'" data-k="'+x.Kelas+'" data-m="'+x.Mapel+'" data-n="'+(x["NIP Guru"]||"")+'" data-g="'+x["Nama Guru"]+'"><td class="tnum">'+x["Jam Mulai"]+'</td><td>'+x.Kelas+'</td><td>'+x["Nama Guru"]+'</td><td><select class="selbox gkS" style="padding:6px"><option>Hadir</option><option>Tidak Hadir</option><option>Digantikan</option></select></td><td><input class="selbox gkN" style="width:140px;padding:6px" placeholder="catatan"></td></tr>'}).join("")+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};function sGK(){var items=[].map.call($$("#gkB tr"),function(tr){return{jamKe:tr.dataset.j,kelas:tr.dataset.k,mapel:tr.dataset.m,nipGuru:tr.dataset.n,namaGuru:tr.dataset.g,status:tr.querySelector(".gkS").value,keterangan:tr.querySelector(".gkN").value}});gcall("apiAbsenGuruKelas",TK,items).then(function(){toast("ok","Tersimpan")}).catch(function(e){toast("err",e.message)})}
+V.cetakGK=function(b){b.innerHTML='<div class="panel" style="padding:24px;max-width:500px"><h3>Cetak Masuk Kelas</h3><p style="color:var(--ink2);margin:12px 0">Format F5.</p><button class="btn-em" onclick="prGK()">Cetak</button> <button class="btn-gh" onclick="exportXlsx(\'kelas\')">Excel</button></div>'};
+V.bio=function(b){gcall("apiBiodata",TK).then(function(s){if(!s){b.innerHTML='<div class="empty"><b>Data tidak ditemukan</b></div>';return}b.innerHTML='<div class="panel" style="max-width:600px;padding:24px"><h3 style="margin-bottom:16px">Biodata</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>Nama</label><div class="inp"><input id="bNm" value="'+s.Nama+'"></div></div><div class="field"><label>NISN</label><div class="inp"><input value="'+s.NISN+'" disabled></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>NIS</label><div class="inp"><input value="'+(s.NIS||"")+'"></div></div><div class="field"><label>Kelas</label><div class="inp"><input value="'+(s.Kelas||"")+'"></div></div></div><div class="field"><label>Alamat</label><div class="inp"><textarea>'+(s.Alamat||"")+'</textarea></div></div><button class="btn-em" style="width:100%" onclick="toast(\'ok\',\'Fitur simpan biodata belum tersedia di backend\')">Simpan</button></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+V.rkSaya=function(b){gcall("apiRekap",TK,"siswa",{bulan:bln()}).then(function(r){b.innerHTML='<div class="panel"><div class="panel-h"><h3>Rekap Saya</h3><span class="sub">'+r.length+' record</span></div><div class="tablewrap"><table class="dt"><thead><tr><th>Tanggal</th><th>Mapel</th><th>Status</th><th>Ket</th></tr></thead><tbody>'+(r.length?r.map(function(a){return'<tr><td class="tnum">'+a.Tanggal+'</td><td>'+(a.Mapel||"-")+'</td><td>'+badge(a.Status)+'</td><td>'+(a.Keterangan||"-")+'</td></tr>'}).join(""):'<tr><td colspan="4"><div class="empty"><b>Belum ada</b></div></td></tr>')+'</tbody></table></div></div>'}).catch(function(e){b.innerHTML=errB(e)})};
+// PRINT
+function prSiswa(){var kl=$("#prKl")?$("#prKl").value:"";gcall("apiRekapSiswaAgg",TK,bln(),kl).then(function(rows){gcall("apiKop").then(function(k){var d=now();openPr('<html><head><style>@page{size:F5 portrait;margin:8mm}body{font-family:Times New Roman,serif;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #000;padding:3px 4px;text-align:center;font-size:9pt}th{background:#f5f5f5;font-weight:bold}.l{text-align:left}</style></head><body>'+kopF5(k,"LAPORAN REKAPITULASI KEHADIRAN SISWA","Kelas: <b>"+(kl||"Semua")+"</b>","Bulan: <b>"+BL[d.getMonth()]+"</b>","Semester: <b>"+k.semester+"</b>")+'<table><thead><tr><th>No</th><th>NIS</th><th class="l">Nama Siswa</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th></tr></thead><tbody>'+rows.map(function(r,i){return'<tr><td>'+(i+1)+'</td><td>'+r.nis+'</td><td class="l">'+r.nama+'</td><td>'+r.Hadir+'</td><td>'+r.Sakit+'</td><td>'+r.Izin+'</td><td>'+r.Alpa+'</td></tr>'}).join("")+'</tbody></table></body></html>')})}).catch(function(e){toast("err",e.message)})}
+// FIX BUG #3: prDP now reads from inline filter OR from printAll filter
+function prDP(){var sel=$("#prGr")||$("#rkDPGuru"),nip=sel?sel.value:"",nama="";if(sel&&sel.selectedIndex>=0)nama=sel.options[sel.selectedIndex].text;gcall("apiRekap",TK,"datang",{bulan:bln()}).then(function(all){var rows=nip?all.filter(function(r){return String(r.NIP)===nip}):all;if(!nama&&rows.length)nama=rows[0]["Nama Guru"];gcall("apiKop").then(function(k){var d=now();openPr('<html><head><style>@page{size:F5 portrait;margin:8mm}body{font-family:Times New Roman,serif;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #000;padding:4px;text-align:center;font-size:9pt}th{background:#f5f5f5}.sign{margin-top:18px;text-align:right}.gap{height:46px}</style></head><body>'+kopF5(k,"REKAPITULASI KEHADIRAN GURU","Periode: <b>"+BL[d.getMonth()]+"</b>","Tahun: <b>"+d.getFullYear()+"</b>","")+'<div style="margin-top:8px;font-size:11pt"><div>NAMA GURU: <b>'+nama+'</b></div><div>ID GURU: <b>'+nip+'</b></div></div><table><thead><tr><th>NO</th><th>TANGGAL</th><th>ABSEN MASUK</th><th>ABSEN PULANG</th><th>DATANG TERLAMBAT</th><th>PULANG CEPAT</th><th>KET</th></tr></thead><tbody>'+(rows.length?rows.map(function(a,i){return'<tr><td>'+(i+1)+'</td><td>'+a.Tanggal+'</td><td>'+(a["Jam Datang"]||"-")+'</td><td>'+(a["Jam Pulang"]||"-")+'</td><td>'+(a["Status Datang"]==="Terlambat"?"Ya":"-")+'</td><td>'+(a["Status Pulang"]==="Pulang Lebih Dulu"?"Ya":"-")+'</td><td>-</td></tr>'}).join(""):'<tr><td colspan="7">Tidak ada data.</td></tr>')+'</tbody></table><div class="sign"><div>Pasar Kemis, '+k.tanggalCetak+'</div><div>Kepala Madrasah</div><div class="gap"></div><div><b><u>'+k.kepala+'</u></b></div></div></body></html>')})}).catch(function(e){toast("err",e.message)})}
+function prGK(){var rows=window._gkA;if(!rows){gcall("apiRekapGuruKelasAgg",TK,bln()).then(function(r){window._gkA=r;prGK()});return}gcall("apiKop").then(function(k){var d=now();openPr('<html><head><style>@page{size:F5 portrait;margin:8mm}body{font-family:Times New Roman,serif;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #000;padding:4px;text-align:center;font-size:9pt}th{background:#f5f5f5}.l{text-align:left}.foot{display:flex;justify-content:space-between;margin-top:16px;font-size:10pt}.sig{width:42%;text-align:center}.gap{height:42px}</style></head><body>'+kopF5(k,"REKAPITULASI KEHADIRAN GURU DI KELAS","Periode: <b>"+BL[d.getMonth()]+"</b>","Tahun: <b>"+d.getFullYear()+"</b>","")+'<table><thead><tr><th>NO</th><th>ID</th><th class="l">NAMA GURU</th><th>BEBAN JTM</th><th>JUMLAH ABSEN</th><th>SISA JAM MASUK</th></tr></thead><tbody>'+rows.map(function(r,i){return'<tr><td>'+(i+1)+'</td><td>'+r.id+'</td><td class="l">'+r.nama+'</td><td>'+r.beban+'</td><td>'+r.absen+'</td><td>'+r.sisa+'</td></tr>'}).join("")+'</tbody></table><div style="text-align:right;margin-top:8px;font-size:10pt">Pasar Kemis, '+k.tanggalCetak+'</div><div class="foot"><div class="sig">Petugas Piket<div class="gap"></div>_______________</div><div class="sig">Kepala Madrasah<div class="gap"></div>_______________</div></div></body></html>')})}
+function prQr(n,nip,qr){openPr('<html><head><style>@page{size:F5;margin:10mm}body{font-family:sans-serif;text-align:center;padding-top:10mm}img{width:220px;height:220px}</style></head><body><img src="'+qr+'"><h2 style="margin:14px 0 4px">'+n+'</h2><p>NIP: '+nip+'</p><p><b>ABSEN KEHADIRAN GURU</b></p><p>MA Al Istiqomah</p></body></html>')}
+function prAllQr(){var l=window._qr||[];openPr('<html><head><style>@page{size:F5;margin:8mm}body{font-family:sans-serif}.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.c{text-align:center;border:1px solid #ccc;border-radius:8px;padding:10px;page-break-inside:avoid}img{width:130px;height:130px}h3{font-size:11px;margin:6px 0 2px}p{font-size:9px;color:#666}</style></head><body><h2 style="text-align:center;font-size:13px;margin-bottom:10px">QR Code Guru</h2><div class="g">'+l.map(function(g){return'<div class="c"><img src="'+g.qr+'"><h3>'+g.nama+'</h3><p>'+g.nip+'</p></div>'}).join("")+'</div></body></html>')}
+// KALENDER CRUD
+function addKal(){var tgl=prompt("Tanggal (yyyy-mm-dd):"),ket=prompt("Keterangan:");if(!tgl||!ket)return;var jn=prompt("Jenis:","Hari Efektif"),sm=prompt("Semester:","Ganjil");gcall("apiCreate",TK,"kaldik",{Tanggal:tgl,Keterangan:ket,Jenis:jn||"",Semester:sm||""}).then(function(){toast("ok","Ditambahkan");go("kaldik")}).catch(function(e){toast("err",e.message)})}
+function delKal(id){if(!confirm("Hapus?"))return;gcall("apiDelete",TK,"kaldik",id).then(function(){toast("ok","Terhapus");go("kaldik")}).catch(function(e){toast("err",e.message)})}
+// TEMPLATE & UPLOAD
+function dlTpl(type){var h,f;if(type==="guru"){h="NIP,Nama,Username,Password,Mapel,No HP";f="template_guru.csv"}else{h="NISN,NIS,Nama,Kelas,JK,Tempat Lahir,Tanggal Lahir,Alamat,No HP Ortu";f="template_siswa.csv"}var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([h+"\n"],{type:"text/csv"}));a.download=f;a.click();toast("ok","Template terunduh")}
+// FIX BUG #4: Upload CSV with loading toast
+function upCSV(input,type){var file=input.files[0];if(!file)return;toast("ok","Mengupload "+file.name+"...");var reader=new FileReader();reader.onload=function(e){var lines=e.target.result.split("\n").filter(function(l){return l.trim()});if(lines.length<2){toast("err","File kosong");return}var hd=lines[0].split(",").map(function(h){return h.trim()}),count=0,chain=Promise.resolve();for(var i=1;i<lines.length;i++){(function(line){var cols=line.split(",").map(function(c){return c.trim()});if(cols.length<2)return;var obj={};hd.forEach(function(h,idx){obj[h]=cols[idx]||""});obj.Status="aktif";if(type==="guru"&&!obj.Password)obj.Password=obj.NIP||"guru123";chain=chain.then(function(){count++;return gcall("apiCreate",TK,type,obj)})})(lines[i])}chain.then(function(){toast("ok",count+" data "+type+" berhasil diimport");go(type==="guru"?"dataGuru":"dataSiswa")}).catch(function(e){toast("err","Error: "+e.message)})};reader.readAsText(file)}
+function addPiket(){
+  var hari = prompt("Hari (Senin/Selasa/Rabu/Kamis/Jumat):");
+  var nama = prompt("Nama Guru Piket:");
+  var nip = prompt("NIP:");
+  if(!hari || !nama) return;
+  gcall("apiCreate",TK,"piket",{Hari:hari,"Nama Guru Piket":nama,NIP:nip||""})
+    .then(function(){ toast("ok","Piket ditambahkan"); go("piket"); })
+    .catch(function(e){ toast("err",e.message); });
+}
 
-  <main class="flex-1 container mx-auto px-4 py-6">
-    <section id="home-view" class="space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-emerald-600 text-white p-4 rounded-xl shadow flex items-center justify-between">
-          <div><p class="text-xs text-emerald-100 uppercase font-bold">Hadir Hari Ini</p><h3 id="stat-hadir" class="text-3xl font-extrabold mt-1">0</h3></div>
-          <i class="bi bi-person-check-fill text-4xl opacity-40"></i>
-        </div>
-        <div class="bg-amber-500 text-white p-4 rounded-xl shadow flex items-center justify-between">
-          <div><p class="text-xs text-amber-100 uppercase font-bold">Izin / Sakit</p><h3 id="stat-izin" class="text-3xl font-extrabold mt-1">0</h3></div>
-          <i class="bi bi-envelope-paper-fill text-4xl opacity-40"></i>
-        </div>
-        <div class="bg-rose-500 text-white p-4 rounded-xl shadow flex items-center justify-between">
-          <div><p class="text-xs text-rose-100 uppercase font-bold">Belum Absen</p><h3 id="stat-alfa" class="text-3xl font-extrabold mt-1">0</h3></div>
-          <i class="bi bi-person-x-fill text-4xl opacity-40"></i>
-        </div>
-        <div class="bg-blue-600 text-white p-4 rounded-xl shadow flex items-center justify-between">
-          <div><p class="text-xs text-blue-100 uppercase font-bold">Total GTK</p><h3 id="stat-total" class="text-3xl font-extrabold mt-1">0</h3></div>
-          <i class="bi bi-people-fill text-4xl opacity-40"></i>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white p-5 rounded-xl shadow border border-gray-200 flex flex-col items-center">
-          <h4 class="font-bold text-sm text-gray-500 self-start mb-4 uppercase">Grafik Kehadiran</h4>
-          <div class="w-48 h-48 rounded-full border-[16px] border-rose-500 flex items-center justify-center text-center p-4">
-            <span class="text-xs font-semibold text-gray-500">Realtime Ringkasan</span>
-          </div>
-        </div>
-        <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
-          <h4 class="font-bold text-sm text-gray-500 mb-4 uppercase">Tren Bulanan Kehadiran</h4>
-          <div class="space-y-3 pt-4">
-            <div><div class="flex justify-between text-xs mb-1"><span>Minggu 1</span><span class="font-bold text-rose-500">16 Absen/Izin</span></div><div class="w-full bg-gray-200 h-3 rounded"><div class="bg-rose-500 h-3 rounded" style="width: 90%"></div></div></div>
-            <div><div class="flex justify-between text-xs mb-1"><span>Minggu 2</span><span class="font-bold text-emerald-600">1 Hadir</span></div><div class="w-full bg-gray-200 h-3 rounded"><div class="bg-emerald-500 h-3 rounded" style="width: 10%"></div></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
+function editPiket(id){
+  var row = (window._piket||[]).filter(function(p){ return String(p.ID)===String(id); })[0];
+  if(!row) return;
+  var hari = prompt("Hari:", row.Hari);
+  var nama = prompt("Nama Guru Piket:", row["Nama Guru Piket"]);
+  var nip = prompt("NIP:", row.NIP);
+  if(!hari || !nama) return;
+  gcall("apiUpdate",TK,"piket",id,{Hari:hari,"Nama Guru Piket":nama,NIP:nip||""})
+    .then(function(){ toast("ok","Piket diperbarui"); go("piket"); })
+    .catch(function(e){ toast("err",e.message); });
+}
 
-    <section id="login-view" class="hidden max-w-md mx-auto my-12">
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
-        <div class="text-center mb-6">
-          <i class="bi bi-person-lock text-5xl text-madrasah"></i>
-          <h2 class="text-xl font-bold mt-2 text-gray-800">Pintu Masuk GTK & Admin</h2>
-          <p class="text-xs text-gray-500 mt-1">Gunakan Akun Terdaftar Pada Tab USER Spreadsheet</p>
-        </div>
-        <div id="login-alert" class="hidden mb-4 p-3 rounded text-sm text-center font-medium"></div>
-        <form id="form-login" onsubmit="actionLogin(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Username / NUPTK</label>
-            <input type="text" id="login-username" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
-            <input type="password" id="login-password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600 text-sm">
-          </div>
-          <button type="submit" id="login-btn-submit" class="w-full bg-madrasah hover:bg-green-700 text-white py-2.5 rounded-lg font-bold transition text-sm">Masuk Aplikasi</button>
-        </form>
-      </div>
-    </section>
-
-    <section id="guru-view" class="hidden space-y-6">
-      <div class="bg-white p-5 rounded-xl shadow border-l-4 border-emerald-600 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-gray-800">Selamat Datang, <span id="guru-nama-display" class="text-madrasah">...</span></h2>
-          <p class="text-xs text-gray-500 mt-0.5">NUPTK/ID: <span id="guru-nuptk-display" class="font-mono">...</span> | Hak Akses: <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs uppercase font-bold">Guru</span></p>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3">
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
-            <span class="block text-[10px] uppercase font-bold text-emerald-700 mb-1.5"><i class="bi bi-clock mr-1"></i> Sesi Datang (06:00 - 09:00)</span>
-            <div class="flex space-x-1 justify-center">
-              <button onclick="actionIsiAbsen('Datang', 'Hadir')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded text-xs font-bold transition shadow-sm">Hadir</button>
-              <button onclick="actionIsiAbsen('Datang', 'Izin')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1.5 rounded text-xs font-bold transition shadow-sm">Izin</button>
-              <button onclick="actionIsiAbsen('Datang', 'Sakit')" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded text-xs font-bold transition shadow-sm">Sakit</button>
-            </div>
-          </div>
-          
-          <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 text-center flex flex-col justify-center">
-            <span class="block text-[10px] uppercase font-bold text-blue-700 mb-1.5"><i class="bi bi-clock-history mr-1"></i> Sesi Pulang (13:00 - 18:00)</span>
-            <div class="flex justify-center">
-              <button onclick="actionIsiAbsen('Pulang', 'Hadir')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-1.5 rounded text-xs font-bold transition shadow-sm">Absen Pulang</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
-        <h3 class="font-bold text-sm text-gray-600 mb-3 uppercase flex items-center"><i class="bi bi-clock-history mr-2 text-madrasah"></i> Log Presensi Anda Bulan Ini</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="bg-gray-100 text-gray-700 uppercase font-bold border-b border-gray-200">
-                <th class="p-3">No</th>
-                <th class="p-3">Tanggal</th>
-                <th class="p-3">Jam Datang</th>
-                <th class="p-3">Status Datang</th>
-                <th class="p-3">Jam Pulang</th>
-                <th class="p-3">Status Pulang</th>
-              </tr>
-            </thead>
-            <tbody id="table-guru-log">
-              <tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data masuk.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="admin-view" class="hidden space-y-6">
-      <div class="bg-white p-5 rounded-xl shadow border-l-4 border-blue-600">
-        <h2 class="text-lg font-bold text-gray-800"><i class="bi bi-shield-lock-fill text-blue-600 mr-1"></i> Konsol Administrator Utama</h2>
-        <p class="text-xs text-gray-500">Manajemen Data Master GTK & Cetak Formulir Rekapitulasi (A4 PDF)</p>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="space-y-4 lg:col-span-1">
-          <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
-            <h3 class="font-bold text-xs uppercase text-gray-600 mb-3 border-b pb-2">1. Unduh Data Presensi (Excel)</h3>
-            <button onclick="actionUnduhExcelTerfilter()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center">
-              <i class="bi bi-file-earmark-excel-fill mr-2"></i> Ekspor Filter ke Excel
-            </button>
-          </div>
-          <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
-            <h3 class="font-bold text-xs uppercase text-gray-600 mb-3 border-b pb-2">2. Cetak Absen Per GTK / Bulan (A4 PDF)</h3>
-            <div class="space-y-3">
-              <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pilih Nama Guru</label>
-                <select id="pdf-select-gtk" class="w-full p-2 border border-gray-300 rounded text-xs focus:outline-none"></select>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Bulan</label>
-                  <select id="pdf-select-bulan" class="w-full p-2 border border-gray-300 rounded text-xs">
-                    <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
-                    <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-                    <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
-                    <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tahun</label>
-                  <select id="pdf-select-tahun" class="w-full p-2 border border-gray-300 rounded text-xs">
-                    <option value="2026">2026</option><option value="2027">2027</option>
-                  </select>
-                </div>
-              </div>
-              <button onclick="actionCetakPDF()" id="pdf-btn-submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg text-xs font-bold transition"><i class="bi bi-file-pdf-fill mr-1"></i> Proses Cetak PDF A4</button>
-            </div>
-          </div>
-        </div>
-        <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow border border-gray-200">
-          <h3 class="font-bold text-xs uppercase text-gray-600 mb-3 flex items-center justify-between">
-            <span><i class="bi bi-table text-madrasah mr-1"></i> Daftar Anggota GTK & Rekapitulasi Bulan Ini</span>
-            <button onclick="loadAdminDashboardData()" class="text-blue-600 hover:underline normal-case text-[11px] font-normal">Refresh Data</button>
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="bg-gray-100 text-gray-700 uppercase font-bold border-b border-gray-200">
-                  <th class="p-2">NUPTK</th><th class="p-2">Nama GTK</th><th class="p-2 text-center">Hadir</th><th class="p-2 text-center">Izin</th><th class="p-2 text-center">Sakit</th>
-                </tr>
-              </thead>
-              <tbody id="table-admin-rekap">
-                <tr><td colspan="5" class="p-4 text-center text-gray-400">Sedang memuat data master...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="bg-gray-800 text-gray-400 text-center py-3 text-xs border-t border-gray-700">
-    &copy; 2026 MA Al Istiqomah. Built via Google Apps Script (PWA Certified).
-  </footer>
-
-  <script>
-    var SESSION = { role: null, nuptk: null, name: null };
-
-    window.addEventListener('DOMContentLoaded', function() {
-      loadRealtimeStatistics();
-    });
-
-    function switchView(viewId) {
-      const views = ['home-view', 'login-view', 'guru-view', 'admin-view'];
-      views.forEach(v => { document.getElementById(v).classList.add('hidden'); });
-      document.getElementById(viewId).classList.remove('hidden');
-      window.scrollTo(0,0);
-    }
-
-    function loadRealtimeStatistics() {
-      google.script.run
-        .withSuccessHandler(function(res) {
-          document.getElementById('stat-hadir').innerText = res.hadir;
-          document.getElementById('stat-izin').innerText = res.izin;
-          document.getElementById('stat-alfa').innerText = res.alfa;
-          document.getElementById('stat-total').innerText = res.total;
-        })
-        .getRealtimeStatistics();
-    }
-
-    function actionLogin(e) {
-      e.preventDefault();
-      const user = document.getElementById('login-username').value;
-      const pass = document.getElementById('login-password').value;
-      const btn = document.getElementById('login-btn-submit');
-      const box = document.getElementById('login-alert');
-      
-      box.className = "mb-4 p-3 rounded text-sm text-center font-medium bg-amber-100 text-amber-800 border border-amber-300";
-      box.innerText = "Memverifikasi identitas akun...";
-      box.classList.remove('hidden');
-      btn.disabled = true;
-
-      google.script.run
-        .withSuccessHandler(function(response) {
-          btn.disabled = false;
-          if(response.success) {
-            box.className = "mb-4 p-3 rounded text-sm text-center font-medium bg-green-100 text-green-800 border border-green-300";
-            box.innerText = "Verifikasi sukses! Mengalihkan...";
-            
-            SESSION.role = response.role;
-            SESSION.nuptk = response.nuptk;
-            SESSION.name = response.name;
-            
-            document.getElementById('nav-login-btn').classList.add('hidden');
-            document.getElementById('nav-logout-btn').classList.remove('hidden');
-            
-            setTimeout(function() {
-              box.classList.add('hidden');
-              if(SESSION.role === 'admin') {
-                switchView('admin-view');
-                loadAdminDashboardData();
-              } else {
-                document.getElementById('guru-nama-display').innerText = SESSION.name;
-                document.getElementById('guru-nuptk-display').innerText = SESSION.nuptk;
-                switchView('guru-view');
-                loadGuruLogTable();
-              }
-            }, 800);
-          } else {
-            box.className = "mb-4 p-3 rounded text-sm text-center font-medium bg-rose-100 text-rose-800 border border-rose-300";
-            box.innerText = response.message;
-          }
-        })
-        .withFailureHandler(function() {
-          btn.disabled = false;
-          box.className = "mb-4 p-3 rounded text-sm text-center font-medium bg-rose-100 text-rose-800 border border-rose-300";
-          box.innerText = "Koneksi terputus! Silakan coba lagi.";
-        })
-        .prosesUserLogin(user, pass);
-    }
-
-    // Penyesuaian Pengiriman Absen dengan Parameter Sesi (Datang/Pulang) dan Status Kehadiran
-    function actionIsiAbsen(tipeAbsen, status) {
-      if(!SESSION.nuptk) return;
-      showToast("Sedang memproses absensi " + tipeAbsen + "...", "info");
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if(res.success) {
-            showToast("Sukses! Absen " + tipeAbsen + " berhasil dicatat.", "success");
-            loadGuruLogTable();
-            loadRealtimeStatistics();
-          } else {
-            showToast(res.message, "error");
-          }
-        })
-        .savePresensi(SESSION.nuptk, tipeAbsen, status);
-    }
-
-    // Penyesuaian Rendering Tabel Mengikuti 6 Kolom Log Berpasangan (Datang & Pulang)
-    function loadGuruLogTable() {
-      const tbody = document.getElementById('table-guru-log');
-      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Memuat log presensi...</td></tr>';
-      
-      google.script.run
-        .withSuccessHandler(function(data) {
-          if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data masuk bulan ini.</td></tr>';
-            return;
-          }
-          var html = "";
-          data.forEach((row, index) => {
-            html += `<tr class="border-b border-gray-100 hover:bg-gray-50 text-gray-600">
-              <td class="p-3">${index+1}</td>
-              <td class="p-3 font-medium text-gray-800">${row.tanggal}</td>
-              <td class="p-3 text-emerald-700 font-mono font-semibold">${row.datang}</td>
-              <td class="p-3">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${row.statusDatang === 'Hadir' ? 'bg-green-100 text-green-800' : row.statusDatang === '-' ? 'bg-gray-100 text-gray-400' : 'bg-amber-100 text-amber-800'}">${row.statusDatang}</span>
-              </td>
-              <td class="p-3 text-blue-700 font-mono font-semibold">${row.pulang}</td>
-              <td class="p-3">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${row.statusPulang === 'Hadir' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-400'}">${row.statusPulang}</span>
-              </td>
-            </tr>`;
-          });
-          tbody.innerHTML = html;
-        })
-        .getRincianAbsenPerGtk(SESSION.nuptk);
-    }
-
-    function loadAdminDashboardData() {
-      const tbody = document.getElementById('table-admin-rekap');
-      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sedang memuat data master...</td></tr>';
-      
-      google.script.run
-        .withSuccessHandler(function(res) {
-          const selectGtk = document.getElementById('pdf-select-gtk');
-          selectGtk.innerHTML = "";
-          res.listGtk.forEach(g => {
-            selectGtk.innerHTML += `<option value="${g.nuptk}">${g.nama}</option>`;
-          });
-          
-          if(res.rekapAll.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Tidak ada data master GTK.</td></tr>';
-            return;
-          }
-          var html = "";
-          res.rekapAll.forEach(r => {
-            html += `<tr class="border-b border-gray-100 text-gray-600 hover:bg-gray-50">
-              <td class="p-2 font-mono">${r.nuptk}</td><td class="p-2 font-medium text-gray-800">${r.nama}</td>
-              <td class="p-2 text-center text-emerald-600 font-bold">${r.hadir}</td>
-              <td class="p-2 text-center text-amber-500 font-bold">${r.izin}</td>
-              <td class="p-2 text-center text-rose-500 font-bold">${r.sakit}</td>
-            </tr>`;
-          });
-          tbody.innerHTML = html;
-        })
-        .getAdminDashboardData();
-    }
-
-    function actionUnduhExcelTerfilter() {
-      const nuptk = document.getElementById('pdf-select-gtk').value;
-      const bulan = document.getElementById('pdf-select-bulan').value;
-      const tahun = document.getElementById('pdf-select-tahun').value;
-      
-      if (!nuptk) { 
-        showToast("Silakan pilih GTK terlebih dahulu pada menu di bawah!", "warning"); 
-        return; 
-      }
-      showToast("Sedang menyiapkan unduhan Excel terfilter...", "info");
-      
-      google.script.run
-        .withSuccessHandler(function(url) {
-          if (url.indexOf("Error") > -1) {
-            showToast(url, "error");
-          } else {
-            showToast("File Excel berhasil di-generate!", "success");
-            window.open(url, '_blank');
-          }
-        })
-        .withFailureHandler(function() {
-          showToast("Koneksi gagal mengunduh data Excel.", "error");
-        })
-        .generateFilteredExcelLink(nuptk, bulan, tahun);
-    }
-
-    function actionCetakPDF() {
-      const nuptk = document.getElementById('pdf-select-gtk').value;
-      const bulan = document.getElementById('pdf-select-bulan').value;
-      const tahun = document.getElementById('pdf-select-tahun').value;
-      const btn = document.getElementById('pdf-btn-submit');
-      
-      if(!nuptk) { showToast("Silakan pilih GTK terlebih dahulu!", "warning"); return; }
-      
-      btn.disabled = true;
-      btn.innerText = "Mengeksport PDF...";
-      showToast("PDF sedang dibuat di Google Drive. Silakan tunggu...", "info");
-      
-      google.script.run
-        .withSuccessHandler(function(url) {
-          btn.disabled = false;
-          btn.innerHTML = `<i class="bi bi-file-pdf-fill mr-1"></i> Proses Cetak PDF A4`;
-          if(url.indexOf("Error") > -1) {
-            showToast(url, "error");
-          } else {
-            showToast("PDF Berhasil Dibuat!", "success");
-            window.open(url, '_blank');
-          }
-        })
-        .generateMonthlyPDFReport(nuptk, bulan, tahun);
-    }
-
-    function showToast(msg, type = "info") {
-      const toast = document.getElementById('toast');
-      const icon = document.getElementById('toast-icon');
-      const text = document.getElementById('toast-message');
-      
-      text.innerText = msg;
-      toast.classList.remove('hidden');
-      
-      if(type === 'success') {
-        toast.className = "fixed bottom-5 right-5 z-50 max-w-sm w-full bg-white border-l-4 border-green-500 shadow-xl p-4 rounded flex items-start space-x-3";
-        icon.className = "bi bi-check-circle-fill text-green-500";
-      } else if (type === 'error') {
-        toast.className = "fixed bottom-5 right-5 z-50 max-w-sm w-full bg-white border-l-4 border-red-500 shadow-xl p-4 rounded flex items-start space-x-3";
-        icon.className = "bi bi-exclamation-triangle-fill text-red-500";
-      } else {
-        toast.className = "fixed bottom-5 right-5 z-50 max-w-sm w-full bg-white border-l-4 border-blue-500 shadow-xl p-4 rounded flex items-start space-x-3";
-        icon.className = "bi bi-info-circle-fill text-blue-500";
-      }
-      setTimeout(() => { toast.classList.add('hidden'); }, 4000);
-    }
-
-    function actionLogout() {
-      SESSION = { role: null, nuptk: null, name: null };
-      document.getElementById('form-login').reset();
-      document.getElementById('nav-login-btn').classList.remove('hidden');
-      document.getElementById('nav-logout-btn').classList.add('hidden');
-      showToast("Anda telah keluar dari aplikasi.", "info");
-      switchView('home-view');
-    }
-  </script>
+function delPiket(id){
+  if(!confirm("Hapus jadwal piket ini?")) return;
+  gcall("apiDelete",TK,"piket",id)
+    .then(function(){ toast("ok","Terhapus"); go("piket"); })
+    .catch(function(e){ toast("err",e.message); });
+}
+loadHome();
+</script>
 </body>
 </html>
